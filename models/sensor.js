@@ -1,6 +1,6 @@
 'use strict'
 
-import {getIntersection, lerp} from "./utils.js";
+import {getIntersection, lerp} from "../utils/utils.js";
 
 /**
  * @class
@@ -33,9 +33,10 @@ export class Sensor
     /**
      * @public
      * @param {Coordinates[][]} roadBorders
+     * @param {TrafficObject[]} traffic
      * @return {void}
      */
-    update(roadBorders)
+    update(roadBorders, traffic)
     {
         this.#castRays();
         this.readings = [];
@@ -44,7 +45,7 @@ export class Sensor
         {
             this.readings.push
             (
-                this.#getReading(this.rays[i], roadBorders)
+                this.#getReading(this.rays[i], roadBorders, traffic)
             );
         }
     }
@@ -52,9 +53,10 @@ export class Sensor
     /**
      * @param {Coordinates[]} ray
      * @param {Coordinates[][]} roadBorders
+     * @param {TrafficObject[]} traffic
      * @return {Coordinates | null}
      */
-    #getReading(ray,roadBorders)
+    #getReading(ray, roadBorders, traffic)
     {
         /** @type {Coordinates[]} */
         let touches= [];
@@ -70,6 +72,25 @@ export class Sensor
                 roadBorders[i][1]
             );
             if(touch) touches.push(touch);
+        }
+
+        for (let i = 0; i < traffic.length; i++)
+        {
+            /** @type {Coordinates[]} */
+            const poly = traffic[i].polygon;
+
+            for (let j = 0; j < poly.length; j++)
+            {
+                /** @type {Coordinates | null} */
+                const touch = getIntersection
+                (
+                    ray[0],
+                    ray[1],
+                    poly[i],
+                    poly[(j + 1) % poly.length]
+                );
+                if(touch) touches.push(touch);
+            }
         }
 
         if(touches.length === 0) return null;
@@ -115,9 +136,10 @@ export class Sensor
      * @public
      * @override
      * @param {CanvasRenderingContext2D} ctx
+     * @param {string | CanvasGradient | CanvasPattern} color
      * @return void
      */
-    draw(ctx)
+    draw(ctx, color)
     {
         for(let i= 0; i < this.rayCount; i++)
         {

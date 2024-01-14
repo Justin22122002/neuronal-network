@@ -8,6 +8,10 @@
  */
 
 /**
+ * @typedef {'KEYS' | 'DUMMY'} ControlType
+ */
+
+/**
  * linear interpolation
  * @param {number} A
  * @param {number} B
@@ -20,7 +24,7 @@ export function lerp(A, B, t)
 }
 
 /**
- *
+ * checks for an intersection
  * @param {Coordinates} A
  * @param {Coordinates} B
  * @param {Coordinates} C
@@ -54,4 +58,32 @@ export function getIntersection(A,B,C,D)
     }
 
     return null;
+}
+
+/**
+ * checks for an intersection between the given coordinates
+ * @param {Coordinates[]} poly1
+ * @param {Coordinates[]} poly2
+ * @return {boolean}
+ */
+export function polysIntersect(poly1, poly2)
+{
+    for (let i = 0; i < poly1.length; i++)
+    {
+        for (let j = 0; j < poly2.length; j++)
+        {
+            /** @type {Coordinates | null} */
+            const touch = getIntersection
+            (
+                poly1[i],
+                poly1[(i + 1) % poly1.length],
+                poly2[j],
+                poly2[(j + 1) % poly2.length],
+            )
+
+            if(touch) return true;
+        }
+    }
+
+    return false;
 }

@@ -1,6 +1,6 @@
 'use strict'
 
-import {lerp} from "./utils.js";
+import {lerp} from "../utils/utils.js";
 /**
  * @class
  * @implements {Drawable}
@@ -70,12 +70,13 @@ export class Road
      * @public
      * @override
      * @param {CanvasRenderingContext2D} ctx
+     * @param {string | CanvasGradient | CanvasPattern} color
      * @return void
      */
-    draw(ctx)
+    draw(ctx, color)
     {
         ctx.lineWidth = 5;
-        ctx.strokeStyle = "white";
+        ctx.strokeStyle = color;
 
         for(let i = 1; i <= this.laneCount - 1; i++)
         {

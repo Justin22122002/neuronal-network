@@ -2,6 +2,7 @@
 
 /**
  * @interface
+ * @abstract
  */
 export class Drawable
 {
@@ -10,7 +11,8 @@ export class Drawable
      * @public
      * @abstract
      * @param {CanvasRenderingContext2D} ctx - canvas.
+     * @param {string | CanvasGradient | CanvasPattern} color
      * @return {void}
      */
-    draw(ctx) {}
+    draw(ctx, color) {}
 }

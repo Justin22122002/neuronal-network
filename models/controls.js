@@ -5,8 +5,9 @@ export class Controls
 {
     /**
      * @constructor
+     * @param {ControlType} controlType
      */
-    constructor()
+    constructor(controlType)
     {
         /** @member {boolean} */
         this.forward = false;
@@ -17,7 +18,15 @@ export class Controls
         /** @member {boolean} */
         this.reverse = false;
 
-        this.#addKeyboardListeners();
+        switch (controlType)
+        {
+            case "DUMMY":
+                this.forward = true;
+                break;
+            case "KEYS":
+                this.#addKeyboardListeners();
+                break;
+        }
     }
 
     /**
