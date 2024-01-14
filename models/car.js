@@ -1,10 +1,12 @@
 'use strict'
 
 import {Controls} from "./controls.js";
+import {Sensor} from "./sensor.js";
 
 /**
  * Represents a car object with position and dimensions.
  * @class
+ * @implements {Drawable}
  */
 export class Car
 {
@@ -35,22 +37,28 @@ export class Car
         this.friction = 0.05;
         /** @member {number} */
         this.angle = 0;
+
         /** @member {Controls} */
         this.controls = new Controls();
+
+        /** @member {Sensor} */
+        this.sensor = new Sensor(this);
     }
 
     /**
      * @public
-     * @returns {void}
+     * @param {Coordinates[][]} roadBorders
+     * @return {void}
      */
-    update()
+    update(roadBorders)
     {
         this.#move();
+        this.sensor.update(roadBorders)
     }
 
     /**
      * @private
-     * @returns {void}
+     * @return {void}
      */
     #move()
     {
@@ -80,8 +88,9 @@ export class Car
     /**
      * Draws the car on the canvas context.
      * @public
+     * @override
      * @param {CanvasRenderingContext2D} ctx
-     * @returns void
+     * @return void
      */
     draw(ctx)
     {
@@ -100,5 +109,7 @@ export class Car
         ctx.fill();
 
         ctx.restore();
+
+        this.sensor.draw(ctx);
     }
 }

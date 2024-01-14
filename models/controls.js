@@ -23,14 +23,14 @@ export class Controls
     /**
      * Private method to add keyboard event listeners for control input.
      * @private
-     * @returns {void}
+     * @return {void}
      */
     #addKeyboardListeners()
     {
         /**
          * Event handler for keydown events.
          * @param {KeyboardEvent} event - The keydown event object.
-         * @returns {void}
+         * @return {void}
          */
         document.onkeydown = (event) =>
         {
@@ -54,7 +54,7 @@ export class Controls
         /**
          * Event handler for keyup events.
          * @param {KeyboardEvent} event - The keyup event object.
-         * @returns {void}
+         * @return {void}
          */
         document.onkeyup = (event) =>
         {
