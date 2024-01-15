@@ -1,4 +1,3 @@
-// @ts-check
 'use strict'
 
 /**
@@ -10,7 +9,7 @@ class Coordinates
     /**
      * @param {number} x - The x-coordinate.
      * @param {number} y - The y-coordinate.
-     * @param {number?} offset - The offset.
+     * @param {number | null} offset - The offset.
      */
     constructor(x, y, offset) 
     {
@@ -18,7 +17,7 @@ class Coordinates
         this.x = x;
         /** @member {number} */
         this.y = y;
-        /** @member {number?} */
+        /** @member {number | null} */
         this.offset = offset;
     }
 }

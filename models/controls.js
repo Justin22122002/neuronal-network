@@ -1,6 +1,9 @@
 'use strict'
 
-/** @class */
+/** 
+ * @class
+ * @classdesc
+ */
 export class Controls
 {
     /**
@@ -31,7 +34,6 @@ export class Controls
 
     /**
      * Private method to add keyboard event listeners for control input.
-     * @private
      * @return {void}
      */
     #addKeyboardListeners()

@@ -1,4 +1,3 @@
-// @ts-check
 'use strict'
 
 import {Controls} from "./controls.js";

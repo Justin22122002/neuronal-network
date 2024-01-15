@@ -36,13 +36,13 @@ export class Road
         this.bottom = infinity;
 
         /** @type {Coordinates} */
-        const topLeft = {x: this.left, y: this.top};
+        const topLeft = {x: this.left, y: this.top, offset: null};
         /** @type {Coordinates} */
-        const topRight = {x: this.right, y: this.top};
+        const topRight = {x: this.right, y: this.top, offset: null};
         /** @type {Coordinates} */
-        const bottomLeft = {x: this.left, y: this.bottom};
+        const bottomLeft = {x: this.left, y: this.bottom, offset: null};
         /** @type {Coordinates} */
-        const bottomRight = {x: this.right, y: this.bottom};
+        const bottomRight = {x: this.right, y: this.bottom, offset: null};
 
         /** @member {Coordinates[][]} */
         this.borders =

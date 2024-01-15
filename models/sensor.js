@@ -1,4 +1,3 @@
-// @ts-check
 'use strict'
 
 import { Drawable } from "../utils/drawable.js";
