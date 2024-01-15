@@ -1,8 +1,10 @@
+// @ts-check
 'use strict'
 
 /**
  * @interface
  * @abstract
+ * @classdesc
  */
 export class Drawable
 {

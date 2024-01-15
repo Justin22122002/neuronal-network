@@ -1,9 +1,14 @@
+// @ts-check
 'use strict'
 
+import { Drawable } from "../utils/drawable.js";
 import {getIntersection, lerp} from "../utils/utils.js";
+import { Car } from "./car.js";
+import { TrafficObject } from "./trafficObject.js";
 
 /**
  * @class
+ * @classdesc
  * @implements {Drawable}
  */
 export class Sensor
@@ -96,10 +101,11 @@ export class Sensor
         if(touches.length === 0) return null;
         else
         {
-            /** @type {number[]} */
+            /** @type {(number | null)[]} */
             const offsets= touches.map(e => e.offset);
+            if(offsets) return null;
             /** @type {number} */
-            const minOffset= Math.min(...offsets);
+            const minOffset = Math.min(...offsets);
             return touches.find(e => e.offset === minOffset);
         }
     }
@@ -121,12 +127,13 @@ export class Sensor
             ) + this.car.angle;
 
             /** @type {Coordinates} */
-            const start= {x: this.car.x, y: this.car.y};
+            const start= { x: this.car.x, y: this.car.y, offset: null };
             /**@type {Coordinates} */
             const end=
             {
                 x: this.car.x - Math.sin(rayAngle) * this.rayLength,
-                y: this.car.y - Math.cos(rayAngle) * this.rayLength
+                y: this.car.y - Math.cos(rayAngle) * this.rayLength,
+                offset: null
             };
             this.rays.push([start, end]);
         }
@@ -134,7 +141,6 @@ export class Sensor
 
     /**
      * @public
-     * @override
      * @param {CanvasRenderingContext2D} ctx
      * @param {string | CanvasGradient | CanvasPattern} color
      * @return void
@@ -149,7 +155,7 @@ export class Sensor
 
             ctx.beginPath();
             ctx.lineWidth = 2;
-            ctx.strokeStyle = "yellow";
+            ctx.strokeStyle = color;
             ctx.moveTo
             (
                 this.rays[i][0].x,

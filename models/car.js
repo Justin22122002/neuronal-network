@@ -1,13 +1,15 @@
+// @ts-check
 'use strict'
 
 import {Controls} from "./controls.js";
 import {Sensor} from "./sensor.js";
 import {polysIntersect} from "../utils/utils.js";
 import {TrafficObject} from "./trafficObject.js";
+import {Drawable} from "../utils/drawable.js";
 
 /**
- * Represents a car object with position and dimensions.
  * @class
+ * @classdesc Represents a car object with position and dimensions.
  * @implements {Drawable}
  */
 export class Car extends TrafficObject
@@ -105,32 +107,35 @@ export class Car extends TrafficObject
         points.push
         ({
             x: this.x - Math.sin(this.angle - alpha) * rad,
-            y: this.y - Math.cos(this.angle - alpha) * rad
+            y: this.y - Math.cos(this.angle - alpha) * rad,
+            offset: null
         });
 
         points.push
         ({
             x: this.x - Math.sin(this.angle + alpha) * rad,
-            y: this.y - Math.cos(this.angle + alpha) * rad
+            y: this.y - Math.cos(this.angle + alpha) * rad,
+            offset: null
         });
 
         points.push
         ({
             x: this.x - Math.sin(Math.PI + this.angle - alpha) * rad,
-            y: this.y - Math.cos(Math.PI + this.angle - alpha) * rad
+            y: this.y - Math.cos(Math.PI + this.angle - alpha) * rad,
+            offset: null
         });
 
         points.push
         ({
             x: this.x - Math.sin(Math.PI + this.angle + alpha) * rad,
-            y: this.y - Math.cos(Math.PI + this.angle + alpha) * rad
+            y: this.y - Math.cos(Math.PI + this.angle + alpha) * rad,
+            offset: null
         });
 
         return points;
     }
 
     /**
-     * @private
      * @return {void}
      */
     #move()
@@ -161,7 +166,6 @@ export class Car extends TrafficObject
     /**
      * Draws the car on the canvas context.
      * @public
-     * @override
      * @param {CanvasRenderingContext2D} ctx
      * @param {string | CanvasGradient | CanvasPattern} color
      * @return void
@@ -181,6 +185,6 @@ export class Car extends TrafficObject
 
         ctx.fill();
 
-        if (this.sensor) this.sensor.draw(ctx);
+        if (this.sensor) this.sensor.draw(ctx, "yellow");
     }
 }

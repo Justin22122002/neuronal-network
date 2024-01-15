@@ -1,13 +1,15 @@
+// @ts-check
 'use strict'
 
 import {Car} from './models/car.js';
 import {Road} from "./models/road.js";
+import {Drawable} from './utils/drawable.js';
 
-/** @type {HTMLCanvasElement} */
-const canvas = document.getElementById("canvas");
+const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById("canvas"));
+
 canvas.width = 200;
 
-/** @type {CanvasRenderingContext2D} */
+/** @type {CanvasRenderingContext2D | null} */
 const ctx = canvas.getContext("2d");
 /** @type {Road} */
 const road = new Road(canvas.width / 2, canvas.width * 0.9);
@@ -25,6 +27,8 @@ animate();
  */
 function animate()
 {
+    if(!ctx) return;
+
     for(let i= 0; i < traffic.length; i++)
     {
         traffic[i].update(road.borders, []);

@@ -1,17 +1,6 @@
 'use strict'
 
 /**
- * @typedef {Object} Coordinates
- * @property {number} x - x-coordinate.
- * @property {number} y - y-coordinate.
- * @property {number?} offset - offset.
- */
-
-/**
- * @typedef {'KEYS' | 'DUMMY'} ControlType
- */
-
-/**
  * linear interpolation
  * @param {number} A
  * @param {number} B
