@@ -4,7 +4,7 @@
  * @class
  * @classdesc Represents a set of coordinates.
  */
-class Coordinates 
+export class Coordinates
 {
     /**
      * @param {number} x - The x-coordinate.
@@ -27,7 +27,7 @@ class Coordinates
  * @readonly
  * @description Represents the control types.
  */
-const ControlType = 
+export const ControlType =
 {
     KEYS: 'KEYS',
     DUMMY: 'DUMMY',

@@ -102,7 +102,7 @@ export class Sensor
         {
             /** @type {(number | null)[]} */
             const offsets= touches.map(e => e.offset);
-            if(offsets) return null;
+            if(!offsets) return null;
             /** @type {number} */
             const minOffset = Math.min(...offsets);
             return touches.find(e => e.offset === minOffset);

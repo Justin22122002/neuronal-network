@@ -3,6 +3,7 @@
 import {Car} from './models/car.js';
 import {Road} from "./models/road.js";
 import {Drawable} from './utils/drawable.js';
+import {ControlType} from "./models/coordinates.js";
 
 const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById("canvas"));
 
@@ -26,8 +27,6 @@ animate();
  */
 function animate()
 {
-    if(!ctx) return;
-
     for(let i= 0; i < traffic.length; i++)
     {
         traffic[i].update(road.borders, []);
