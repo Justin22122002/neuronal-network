@@ -93,7 +93,7 @@ export class Visualizer
             ctx.fill();
             ctx.beginPath();
             ctx.arc(x, bottom, nodeRadius * 0.6, 0, Math.PI * 2);
-            ctx.fillStyle=getRGBA(inputs[i]);
+            ctx.fillStyle = getRGBA(inputs[i]);
             ctx.fill();
         }
         
@@ -124,9 +124,9 @@ export class Visualizer
                 ctx.textBaseline = "middle";
                 ctx.fillStyle = "black";
                 ctx.strokeStyle = "white";
-                ctx.font=(nodeRadius * 1.5) + "px Arial";
+                ctx.font = (nodeRadius * 1.5) + "px Arial";
                 ctx.fillText(outputLabels[i], x, top + nodeRadius * 0.1);
-                ctx.lineWidth=0.5;
+                ctx.lineWidth = 0.5;
                 ctx.strokeText(outputLabels[i], x, top + nodeRadius * 0.1);
             }
         }
