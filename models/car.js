@@ -5,6 +5,8 @@ import {Sensor} from "./sensor.js";
 import {polysIntersect} from "../utils/utils.js";
 import {TrafficObject} from "./trafficObject.js";
 import {Drawable} from "../utils/drawable.js";
+import { NeuralNetwork } from "../neural-network/neural-network.js";
+import { ControlType } from "./coordinates.js";
 
 /**
  * @class
@@ -46,11 +48,21 @@ export class Car extends TrafficObject
         /** @type {boolean} */
         this.damaged = false;
 
+        /** @member {boolean} */
+        this.useBrain = controlType === ControlType.AI;
         /** @member {Controls} */
         this.controls = new Controls(controlType);
 
-        /** @member {Sensor} */
-        if (controlType === "KEYS") this.sensor = new Sensor(this);
+        if (controlType !== ControlType.DUMMY) 
+        {
+            /** @member {Sensor} */
+            this.sensor = new Sensor(this);
+            /** @member {NeuralNetwork} */
+            this.barin = new NeuralNetwork
+            (
+                [this.sensor.rayCount, 6, 4] // 6 = hidden layer, 4 = output Layer --> Left Right Forward Reverse
+            );
+        }
     }
 
     /**
@@ -68,7 +80,30 @@ export class Car extends TrafficObject
             this.damaged = this.#assessDamage(roadBorders, traffic);
         }
 
-        if (this.sensor) this.sensor.update(roadBorders, traffic);
+        if (this.sensor) 
+        {
+            this.sensor.update(roadBorders, traffic);
+
+            /** @type {number[]} */
+            const offsets = this.sensor.readings.map
+            (
+                s => s === null ? 0 : 1 - s.offset
+            );
+
+            /** @type {NeuralNetwork} */
+            const barin = this.barin;
+
+            /** @type {number[]} */
+            const outputs = NeuralNetwork.feedForward(offsets, barin);
+
+            if(this.useBrain)
+            {
+                this.controls.forward = outputs[0];
+                this.controls.left = outputs[1];
+                this.controls.right = outputs[2];
+                this.controls.reverse = outputs[3];
+            }
+        }
     }
 
     /**

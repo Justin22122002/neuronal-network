@@ -29,6 +29,7 @@ export class Coordinates
  */
 export const ControlType =
 {
+    AI : "AI",
     KEYS: 'KEYS',
     DUMMY: 'DUMMY',
 };

@@ -4,28 +4,34 @@ import {Car} from './models/car.js';
 import {Road} from "./models/road.js";
 import {Drawable} from './utils/drawable.js';
 import {ControlType} from "./models/coordinates.js";
+import {Visualizer} from "./neural-network/visualizer.js";
 
-const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById("canvas"));
+const carCanvas = /** @type {HTMLCanvasElement} */ (document.getElementById("carCanvas"));
+carCanvas.width = 200;
 
-canvas.width = 200;
+const networkCanvas = /** @type {HTMLCanvasElement} */ (document.getElementById("networkCanvas"));
+networkCanvas.width = 300;
 
 /** @type {CanvasRenderingContext2D | null} */
-const ctx = canvas.getContext("2d");
+const carCtx = carCanvas.getContext("2d");
+/** @type {CanvasRenderingContext2D | null} */
+const networkCtx = networkCanvas.getContext("2d");
 /** @type {Road} */
-const road = new Road(canvas.width / 2, canvas.width * 0.9);
+const road = new Road(carCanvas.width / 2, carCanvas.width * 0.9);
 /** @type {Car} */
-const car = new Car(road.getLaneCenter(1), 100, 30, 50, ControlType.KEYS, 3);
+const car = new Car(road.getLaneCenter(1), 100, 30, 50, ControlType.AI, 3);
 /** @type {Car[]} */
 const traffic = [
     new Car(road.getLaneCenter(1), -100, 30, 50, ControlType.DUMMY, 1)
 ]
 
-animate();
+animate(10);
 
 /**
+ * @param {number} time
  * @returns {void}
  */
-function animate()
+function animate(time)
 {
     for(let i= 0; i < traffic.length; i++)
     {
@@ -34,20 +40,24 @@ function animate()
 
     car.update(road.borders, traffic);
 
-    canvas.height = window.innerHeight;
+    carCanvas.height = window.innerHeight;
+    networkCanvas.height = window.innerHeight;
 
-    ctx.save();
-    ctx.translate(0, -car.y + canvas.height * 0.75);
+    carCtx.save();
+    carCtx.translate(0, -car.y + carCanvas.height * 0.75);
 
-    drawObject(road, ctx, "white");
-    drawObject(car, ctx, "blue");
+    drawObject(road, carCtx, "white");
+    drawObject(car, carCtx, "blue");
 
     for(let i= 0; i < traffic.length; i++)
     {
-        traffic[i].draw(ctx, "red");
+        traffic[i].draw(carCtx, "red");
     }
 
-    ctx.restore()
+    carCtx.restore();
+
+    networkCtx.lineDashOffset = time / 50;
+    Visualizer.drawNetwork(networkCtx, car.barin);
     requestAnimationFrame(animate)
 }
 

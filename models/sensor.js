@@ -142,7 +142,7 @@ export class Sensor
      * @public
      * @param {CanvasRenderingContext2D} ctx
      * @param {string | CanvasGradient | CanvasPattern} color
-     * @return void
+     * @return {void}
      */
     draw(ctx, color)
     {
