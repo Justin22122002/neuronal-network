@@ -51,11 +51,11 @@ export class Visualizer
      * 
      * @param {CanvasRenderingContext2D} ctx 
      * @param {Level} level 
-     * @param {*} left 
-     * @param {*} top 
-     * @param {*} width 
-     * @param {*} height 
-     * @param {*} outputLabels 
+     * @param {number} left
+     * @param {number} top
+     * @param {number} width
+     * @param {number} height
+     * @param {string[]} outputLabels
      */
     static drawLevel(ctx, level, left, top, width, height, outputLabels)
     {
@@ -133,11 +133,10 @@ export class Visualizer
     }
 
     /**
-     * 
-     * @param {*} nodes 
-     * @param {*} index 
-     * @param {*} left 
-     * @param {*} right 
+     * @param {*} nodes
+     * @param {number} index
+     * @param {number} left
+     * @param {number} right
      * @returns 
      */
     static #getNodeX(nodes, index, left, right)
