@@ -1,6 +1,6 @@
 'use strict'
 
-import {NeuralNetwork} from "./neural-network.js";
+import { NeuralNetwork } from "./neural-network.js";
 import { lerp } from "../utils/utils.js";
 
 /**

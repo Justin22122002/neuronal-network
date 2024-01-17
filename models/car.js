@@ -1,10 +1,10 @@
 'use strict'
 
-import {Controls} from "./controls.js";
-import {Sensor} from "./sensor.js";
-import {polysIntersect} from "../utils/utils.js";
-import {TrafficObject} from "./trafficObject.js";
-import {Drawable} from "../utils/drawable.js";
+import { Controls } from "./controls.js";
+import { Sensor } from "./sensor.js";
+import { polysIntersect } from "../utils/utils.js";
+import { TrafficObject } from "./trafficObject.js";
+import { Drawable } from "../utils/drawable.js";
 import { NeuralNetwork } from "../neural-network/neural-network.js";
 import { ControlType } from "./coordinates.js";
 
@@ -90,18 +90,15 @@ export class Car extends TrafficObject
                 s => s === null ? 0 : 1 - s.offset
             );
 
-            /** @type {NeuralNetwork} */
-            const barin = this.barin;
-
             /** @type {number[]} */
-            const outputs = NeuralNetwork.feedForward(offsets, barin);
+            const outputs = NeuralNetwork.feedForward(offsets, this.barin);
 
             if(this.useBrain)
             {
-                this.controls.forward = outputs[0];
-                this.controls.left = outputs[1];
-                this.controls.right = outputs[2];
-                this.controls.reverse = outputs[3];
+                this.controls.forward = outputs[0] === 1;
+                this.controls.left = outputs[1] === 1;
+                this.controls.right = outputs[2] === 1;
+                this.controls.reverse = outputs[3] === 1;
             }
         }
     }

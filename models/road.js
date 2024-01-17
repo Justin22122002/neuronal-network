@@ -1,6 +1,6 @@
 'use strict'
 
-import {lerp} from "../utils/utils.js";
+import { lerp } from "../utils/utils.js";
 /**
  * @class
  * @implements {Drawable}

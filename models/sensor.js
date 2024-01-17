@@ -1,7 +1,7 @@
 'use strict'
 
 import { Drawable } from "../utils/drawable.js";
-import {getIntersection, lerp} from "../utils/utils.js";
+import { getIntersection, lerp } from "../utils/utils.js";
 import { Car } from "./car.js";
 import { TrafficObject } from "./trafficObject.js";
 
