@@ -1,7 +1,7 @@
 'use strict'
 
 import { NeuralNetwork } from "./neural-network.js";
-import { lerp } from "../utils/utils.js";
+import { lerp, getRGBA } from "../utils/utils.js";
 
 /**
  * @class
@@ -150,17 +150,4 @@ export class Visualizer
                 : index / (nodes.length - 1)
         );
     }
-}
-
-/**
- * @param {number} value 
- * @returns 
- */
-function getRGBA(value)
-{
-    const alpha = Math.abs(value);
-    const R = value < 0 ? 0 : 255;
-    const G = R;
-    const B = value > 0 ? 0 : 255;
-    return "rgba("+R+","+G+","+B+","+alpha+")";
 }
