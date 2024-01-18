@@ -49,7 +49,7 @@ if(localStorage.getItem("bestBrain"))
     for(let i = 0; i < cars.length; i++)
     {
         cars[i].brain = JSON.parse(localStorage.getItem("bestBrain"));
-        if(i != 0) NeuralNetwork.mutate(cars[i].brain, 0.1);
+        if(i !== 0) NeuralNetwork.mutate(cars[i].brain, 0.1);
     }
 }
 
@@ -78,11 +78,11 @@ function animate(time)
     carCtx.globalAlpha = 0.2;
     cars.forEach(car => car.draw(carCtx, false));
     carCtx.globalAlpha = 1;
-    bestCar.draw(carCtx, "blue", true);
+    bestCar.draw(carCtx, true);
 
     for(let i= 0; i < traffic.length; i++)
     {
-        traffic[i].draw(carCtx, "red");
+        traffic[i].draw(carCtx);
     }
 
     carCtx.restore();

@@ -23,6 +23,7 @@ export class Car extends TrafficObject
      * @param {number} height - The height of the car.
      * @param {ControlType} controlType - controlType of the car
      * @param {number} maxSpeed - maxSpeed of the car
+     * @param {string} color
      */
     constructor(x, y, width, height, controlType, maxSpeed = 3, color = "blue")
     {
@@ -64,7 +65,7 @@ export class Car extends TrafficObject
             );
         }
 
-        /** @member {Image} */
+        /** @member {HTMLImageElement} */
         this.img = new Image();
         this.img.src = "../assets/car.png"
 
