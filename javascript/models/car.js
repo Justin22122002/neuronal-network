@@ -218,6 +218,7 @@ export class Car extends TrafficObject
      * Draws the car on the canvas context.
      * @public
      * @param {CanvasRenderingContext2D} ctx
+     * @param {boolean} drawSensor
      * @return {void}
      */
     draw(ctx, drawSensor = false)
