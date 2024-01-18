@@ -29,7 +29,7 @@ export function getIntersection(A,B,C,D)
     /** @type {number} */
     const bottom= (D.y - C.y) * (B.x - A.x) - (D.x - C.x) * (B.y - A.y);
 
-    if(bottom!==0)
+    if(bottom !== 0)
     {
         /** @type {number} */
         const t= tTop / bottom;
