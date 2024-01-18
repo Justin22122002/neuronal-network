@@ -141,10 +141,9 @@ export class Sensor
     /**
      * @public
      * @param {CanvasRenderingContext2D} ctx
-     * @param {string | CanvasGradient | CanvasPattern} color
      * @return {void}
      */
-    draw(ctx, color)
+    draw(ctx)
     {
         for(let i= 0; i < this.rayCount; i++)
         {
@@ -154,7 +153,7 @@ export class Sensor
 
             ctx.beginPath();
             ctx.lineWidth = 2;
-            ctx.strokeStyle = color;
+            ctx.strokeStyle = "yellow";
             ctx.moveTo
             (
                 this.rays[i][0].x,

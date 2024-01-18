@@ -24,7 +24,7 @@ export class Car extends TrafficObject
      * @param {ControlType} controlType - controlType of the car
      * @param {number} maxSpeed - maxSpeed of the car
      */
-    constructor(x, y, width, height, controlType, maxSpeed)
+    constructor(x, y, width, height, controlType, maxSpeed = 3, color = "blue")
     {
         super();
         /** @member {number} */
@@ -58,10 +58,29 @@ export class Car extends TrafficObject
             /** @member {Sensor} */
             this.sensor = new Sensor(this);
             /** @member {NeuralNetwork} */
-            this.barin = new NeuralNetwork
+            this.brain = new NeuralNetwork
             (
                 [this.sensor.rayCount, 6, 4] // 6 = hidden layer, 4 = output Layer --> Left Right Forward Reverse
             );
+        }
+
+        /** @member {Image} */
+        this.img = new Image();
+        this.img.src = "../assets/car.png"
+
+        this.mask = document.createElement("canvas");
+        this.mask.width = width;
+        this.mask.height = height;
+
+        const maskCtx = this.mask.getContext("2d");
+        this.img.onload = () => 
+        {
+            maskCtx.fillStyle = color;
+            maskCtx.rect(0, 0, this.width, this.height);
+            maskCtx.fill();
+
+            maskCtx.globalCompositeOperation = "destination-atop";
+            maskCtx.drawImage(this.img, 0, 0, this.width, this.height);
         }
     }
 
@@ -91,7 +110,7 @@ export class Car extends TrafficObject
             );
 
             /** @type {number[]} */
-            const outputs = NeuralNetwork.feedForward(offsets, this.barin);
+            const outputs = NeuralNetwork.feedForward(offsets, this.brain);
 
             if(this.useBrain)
             {
@@ -198,24 +217,56 @@ export class Car extends TrafficObject
      * Draws the car on the canvas context.
      * @public
      * @param {CanvasRenderingContext2D} ctx
-     * @param {string | CanvasGradient | CanvasPattern} color
-     * @return void
+     * @return {void}
      */
-    draw(ctx, color)
+    draw(ctx, drawSensor = false)
     {
-        if(this.damaged) ctx.fillStyle = "gray";
-        else ctx.fillStyle = color;
-
-        ctx.beginPath();
-        ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
-
-        for(let i = 1; i < this.polygon.length; i++)
+        if(this.sensor && drawSensor)
         {
-            ctx.lineTo(this.polygon[i].x, this.polygon[i].y);
+            this.sensor.draw(ctx);
         }
 
-        ctx.fill();
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(-this.angle);
+        if(!this.damaged)
+        {
+            ctx.drawImage
+            (   
+                this.mask,
+                -this.width / 2,
+                -this.height / 2,
+                this.width,
+                this.height
+            );
+            ctx.globalCompositeOperation = "multiply";
+        }
 
-        if (this.sensor) this.sensor.draw(ctx, "yellow");
+        ctx.drawImage
+        (
+            this.img,
+            -this.width / 2,
+            -this.height / 2,
+            this.width,
+            this.height
+        );
+        ctx.restore();
+
+        /**
+            if(this.damaged) ctx.fillStyle = "gray";
+            else ctx.fillStyle = color;
+            
+            ctx.beginPath();
+            ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
+            
+            for(let i = 1; i < this.polygon.length; i++)
+            {
+                ctx.lineTo(this.polygon[i].x, this.polygon[i].y);
+            }
+
+            ctx.fill();
+
+            if (this.sensor && drawSensor) this.sensor.draw(ctx, "yellow");
+         */
     }
 }

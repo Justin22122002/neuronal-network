@@ -1,6 +1,7 @@
 'use strict';
 
 import { Level } from "./level.js";
+import { lerp } from "../utils/utils.js";
 
 /**
  * @class
@@ -39,5 +40,41 @@ export class NeuralNetwork
         }
 
         return outputs;
+    }
+
+    /**
+     * randomizes the neural network by the given amount
+     * amount = 1 -> randomizes the network
+     * amount = 0.1 -> randomizes the network with a 10% chance
+     * @param {NeuralNetwork} network 
+     * @param {number} amount 
+     */
+    static mutate(network, amount = 1)
+    {
+        network.levels.forEach(level => 
+            {
+                for(let i = 0; i < level.biases.length; i++)
+                {
+                    level.biases[i] = lerp
+                    (
+                        level.biases[i],
+                        Math.random() * 2 - 1,
+                        amount
+                    );
+                }
+
+                for(let i = 0; i < level.weights.length; i++)
+                {
+                    for(let j = 0; j < level.weights[i].length; j++)
+                    {
+                        level.weights[i][j] = lerp
+                        (
+                            level.weights[i][j],
+                            Math.random() * 2 - 1,
+                            amount
+                        );
+                    }
+                }
+        });
     }
 }
