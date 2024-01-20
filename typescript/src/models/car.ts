@@ -149,28 +149,28 @@ export class Car extends TrafficObject
         ({
             x: this.x - Math.sin(this.angle - alpha) * rad,
             y: this.y - Math.cos(this.angle - alpha) * rad,
-            offset: null,
+            offset: null
         });
 
         points.push
         ({
             x: this.x - Math.sin(this.angle + alpha) * rad,
             y: this.y - Math.cos(this.angle + alpha) * rad,
-            offset: null,
+            offset: null
         });
 
         points.push
         ({
             x: this.x - Math.sin(Math.PI + this.angle - alpha) * rad,
             y: this.y - Math.cos(Math.PI + this.angle - alpha) * rad,
-            offset: null,
+            offset: null
         });
 
         points.push
         ({
             x: this.x - Math.sin(Math.PI + this.angle + alpha) * rad,
             y: this.y - Math.cos(Math.PI + this.angle + alpha) * rad,
-            offset: null,
+            offset: null
         });
 
         return points;

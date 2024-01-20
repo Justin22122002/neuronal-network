@@ -15,8 +15,8 @@ export class Level
     /**
      * Creates a new instance of the Level class.
      * @constructor
-     * @param {number} inputCount - The number of input neurons.
-     * @param {number} outputCount - The number of output neurons.
+     * @param inputCount - The number of input neurons.
+     * @param outputCount - The number of output neurons.
      */
     constructor(inputCount: number, outputCount: number)
     {
@@ -35,7 +35,6 @@ export class Level
 
     /**
      * Private method to randomize values for inputs, outputs, and biases.
-     * @private
      * @param level - The Level instance to randomize.
      */
     private static randomize(level: Level): void

@@ -33,7 +33,7 @@ export class Sensor
      * @param ray
      * @param roadBorders
      * @param traffic
-     * @return
+     * @returns
      */
     private getReading(ray: Coordinates[], roadBorders: Coordinates[][], traffic: TrafficObject[]): Coordinates | null
     {
@@ -92,7 +92,7 @@ export class Sensor
     }
 
     /**
-     * @return {void}
+     * @return
      */
     private castRays(): void
     {
@@ -121,7 +121,7 @@ export class Sensor
 
     /**
      * @param ctx
-     * @return
+     * @returns
      */
     draw(ctx: CanvasRenderingContext2D): void
     {
