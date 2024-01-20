@@ -11,13 +11,8 @@ import {NeuralNetwork} from "./neural-network/neural-network.ts";
  */
 export class Car extends TrafficObject
 {
-    public x: number;
-    public y: number;
-    public width: number;
-    public height: number;
     public speed: number;
     public acceleration: number;
-    public maxSpeed: number;
     public friction: number;
     public angle: number;
     public damaged: boolean;
@@ -40,20 +35,16 @@ export class Car extends TrafficObject
      */
     constructor
     (
-        x: number,
-        y: number,
-        width: number,
-        height: number,
+        public x: number,
+        public y: number,
+        public width: number,
+        public height: number,
         controlType: ControlType,
-        maxSpeed: number = 3,
+        public maxSpeed: number = 3,
         color: string = "blue"
     )
     {
         super();
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
         this.speed = 0;
         this.acceleration = 0.2;
         this.maxSpeed = maxSpeed;

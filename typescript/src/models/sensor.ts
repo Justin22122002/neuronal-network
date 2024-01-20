@@ -14,7 +14,6 @@ export class Sensor
     constructor(public car: Car) {}
 
     /**
-     * @public
      * @param roadBorders
      * @param traffic
      * @return
@@ -72,10 +71,22 @@ export class Sensor
         if (touches.length === 0) return null;
         else
         {
-            const offsets: (number |null)[] = touches.map((e: Coordinates) => e.offset);
-            if (!offsets) return null;
-            // @ts-ignore
-            const minOffset: number = Math.min(...offsets);
+            const offsets: (number | null)[] = touches.map((e: Coordinates) => e.offset);
+
+            if (offsets.includes(null))
+            {
+                return null;
+            }
+
+            const filteredOffsets: number[] = offsets.filter((offset: number | null): offset is number => offset !== null);
+
+            if (!filteredOffsets.length)
+            {
+                return null;
+            }
+
+            const minOffset: number = Math.min(...filteredOffsets);
+
             return touches.find((e: Coordinates): boolean => e.offset === minOffset) || null;
         }
     }
@@ -109,7 +120,6 @@ export class Sensor
     }
 
     /**
-     * @public
      * @param ctx
      * @return
      */

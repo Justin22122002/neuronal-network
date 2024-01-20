@@ -7,14 +7,14 @@ import {NeuralNetwork} from "./models/neural-network/neural-network.ts";
 import {Visualizer} from "./models/neural-network/visualizer.ts";
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML =
-    `
-        <div id="verticalButtons">
-          <button id="save">💾</button>
-          <button id="delete">🗑️</button>
-        </div>
-        <canvas id="carCanvas"></canvas> 
-        <canvas id="networkCanvas"></canvas>
-    `
+`
+    <div id="verticalButtons">
+      <button id="save">💾</button>
+      <button id="delete">🗑️</button>
+    </div>
+    <canvas id="carCanvas"></canvas> 
+    <canvas id="networkCanvas"></canvas>
+`
 
 const carCanvas: HTMLCanvasElement = document.getElementById('carCanvas') as HTMLCanvasElement;
 const networkCanvas: HTMLCanvasElement = document.getElementById('networkCanvas') as HTMLCanvasElement;
@@ -40,7 +40,9 @@ const traffic: Car[] =
     new Car(road.getLaneCenter(2), -300, 30, 50, ControlType.DUMMY, 1, getRandomColor()),
     new Car(road.getLaneCenter(1), -500, 30, 50, ControlType.DUMMY, 2, getRandomColor()),
     new Car(road.getLaneCenter(1), -700, 30, 50, ControlType.DUMMY, 2, getRandomColor()),
+    new Car(road.getLaneCenter(0), -700, 30, 50, ControlType.DUMMY, 2, getRandomColor()),
 ];
+
 let bestCar: Car = cars[0];
 
 if (localStorage.getItem('bestBrain') !== null)
@@ -49,7 +51,6 @@ if (localStorage.getItem('bestBrain') !== null)
     console.log(JSON.parse(bestBrainString));
     bestCar.brain = JSON.parse(bestBrainString);
 }
-
 
 const bestBrainString: string | null = localStorage.getItem('bestBrain');
 
@@ -91,10 +92,7 @@ function animate(time: number): void
     carCtx!.globalAlpha = 1;
     bestCar.draw(carCtx!, true);
 
-    for (let i = 0; i < traffic.length; i++)
-    {
-        traffic[i].draw(carCtx!);
-    }
+    traffic.forEach(t => t.draw(carCtx!))
 
     carCtx!.restore();
 
@@ -102,7 +100,8 @@ function animate(time: number): void
     if (bestCar.brain)
     {
         Visualizer.drawNetwork(networkCtx!, bestCar.brain);
-    } else
+    }
+    else
     {
         console.error("brain is undefined");
     }

@@ -35,7 +35,6 @@ export class Road
 
     /**
      * laneIndex starts at 0
-     * @public
      * @param laneIndex
      * @return
      */

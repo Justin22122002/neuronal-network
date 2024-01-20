@@ -90,7 +90,7 @@ export class Sensor
                 (
                     ray[0],
                     ray[1],
-                    poly[i],
+                    poly[j],
                     poly[(j + 1) % poly.length]
                 );
                 if(touch) touches.push(touch);

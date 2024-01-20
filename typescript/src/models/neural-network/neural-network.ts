@@ -1,10 +1,6 @@
 import { Level } from "./level";
 import {lerp} from "../../utils/utils.ts";
 
-/**
- * @class
- * @classdesc
- */
 export class NeuralNetwork
 {
     public levels: Level[];
