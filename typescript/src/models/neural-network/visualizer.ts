@@ -7,7 +7,6 @@ import {Level} from "./level.ts";
 export class Visualizer
 {
     /**
-     * @constructor
      * @param ctx
      * @param network
      */
