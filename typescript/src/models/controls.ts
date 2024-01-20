@@ -5,10 +5,10 @@ import {ControlType} from "./enums/controlType.ts";
  */
 export class Controls
 {
-    forward: boolean = false;
-    left: boolean = false;
-    right: boolean = false;
-    reverse: boolean = false;
+    public forward: boolean = false;
+    public left: boolean = false;
+    public right: boolean = false;
+    public reverse: boolean = false;
 
     /**
      * Constructor for Controls.
