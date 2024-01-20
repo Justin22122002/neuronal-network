@@ -8,12 +8,14 @@ import {Visualizer} from "./models/neural-network/visualizer.ts";
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML =
 `
-    <div id="verticalButtons">
-      <button id="save">💾</button>
-      <button id="delete">🗑️</button>
+    <div class="container">
+        <div id="verticalButtons">
+            <button id="save">💾</button>
+            <button id="delete">🗑️</button>
+        </div>
+        <canvas id="carCanvas"></canvas> 
+        <canvas id="networkCanvas"></canvas>   
     </div>
-    <canvas id="carCanvas"></canvas> 
-    <canvas id="networkCanvas"></canvas>
 `
 
 const carCanvas: HTMLCanvasElement = document.getElementById('carCanvas') as HTMLCanvasElement;
