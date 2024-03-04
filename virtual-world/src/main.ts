@@ -1,19 +1,19 @@
 import './style.css'
 import {Graph} from "./math/graph.ts";
-import {Segment} from "./primitives/segment.ts";
-import {Point} from "./primitives/point.ts";
+import {GraphEditor} from "./editor/graphEditor.ts";
+import {Viewport} from "./editor/viewPort.ts";
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML =
-    `
-        <h1>World Editor</h1>
-        <canvas id="canvas"></canvas>
-        <div>
-            <button id="addRandomPoint">Add Point</button>
-        </div>
-    `
+`
+    <h1>World Editor</h1>
+    <canvas id="canvas"></canvas>
+    <div id="controls">
+        <button id="dispose">🗑️</button>
+        <button id="save">💾</button>
+    </div>
+`
 
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
-
 canvas.width = 600;
 canvas.height = 600;
 
@@ -24,30 +24,38 @@ if(!canvasCtx)
     throw new Error("Canvas not supported");
 }
 
-const p1 = new Point(200, 200);
-const p2 = new Point(500, 200);
-const p3 = new Point(400, 400);
-const p4 = new Point(100, 300);
+const graphString = localStorage.getItem("graph");
+const graphInfo = graphString ? JSON.parse(graphString) : null;
+const graph = graphInfo
+    ? Graph.load(graphInfo)
+    : new Graph();
+const viewport = new Viewport(canvas);
+const graphEditor = new GraphEditor(viewport, graph);
 
-const s1 = new Segment(p1, p2);
-const s2 = new Segment(p1, p3);
-const s3 = new Segment(p1, p4);
-const s4 = new Segment(p2, p3);
+const saveButton = document.getElementById('save') as HTMLButtonElement;
+const disposeButton = document.getElementById('dispose') as HTMLButtonElement;
+saveButton.addEventListener("click", save);
+disposeButton.addEventListener("click", dispose);
 
-const graph = new Graph([p1, p2, p3, p4], [s1, s2, s3, s4]);
+animate();
 
-graph.draw(canvasCtx);
-
-const button: HTMLButtonElement = document.getElementById('addRandomPoint') as HTMLButtonElement;
-button.addEventListener("click", () => addRandomPoint());
-function addRandomPoint(): void
+function animate(): void
 {
-    if(!canvasCtx)
+    if (canvasCtx)
     {
-        throw new Error("Canvas not supported");
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+        viewport.reset();
+        graphEditor.display();
+        requestAnimationFrame(animate);
     }
+}
 
-    const p = new Point(Math.random() * canvas.width, Math.random() * canvas.height);
-    graph.tryAddPoint(p);
-    graph.draw(canvasCtx);
+function dispose()
+{
+    graphEditor.dispose();
+}
+
+function save()
+{
+    localStorage.setItem("graph", graph.toJSON());
 }
