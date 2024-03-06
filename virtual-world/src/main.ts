@@ -2,6 +2,7 @@ import './style.css'
 import {Graph} from "./math/graph.ts";
 import {GraphEditor} from "./editor/graphEditor.ts";
 import {Viewport} from "./editor/viewPort.ts";
+import {World} from "./editor/world.ts";
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML =
 `
@@ -25,10 +26,12 @@ if(!canvasCtx)
 }
 
 const graphString = localStorage.getItem("graph");
-const graphInfo = graphString ? JSON.parse(graphString) : null;
-const graph = graphInfo
+const graphInfo: Graph = graphString ? JSON.parse(graphString) : null;
+const graph = graphString
     ? Graph.load(graphInfo)
     : new Graph();
+
+const world = new World(graph);
 const viewport = new Viewport(canvas);
 const graphEditor = new GraphEditor(viewport, graph);
 
@@ -43,8 +46,10 @@ function animate(): void
 {
     if (canvasCtx)
     {
-        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
         viewport.reset();
+        world.generate();
+        world.draw(canvasCtx);
+        canvasCtx.globalAlpha = 0.3;
         graphEditor.display();
         requestAnimationFrame(animate);
     }

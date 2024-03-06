@@ -1,6 +1,12 @@
 export class Point
 {
-    constructor(private _x: number, private _y: number)
+    private _offset?: number
+
+    constructor
+    (
+        private _x: number,
+        private _y: number,
+    )
     {
     }
 
@@ -52,5 +58,16 @@ export class Point
     set y(value: number)
     {
         this._y = value;
+    }
+
+
+    get offset(): number | undefined
+    {
+        return this._offset;
+    }
+
+    set offset(value: number)
+    {
+        this._offset = value;
     }
 }

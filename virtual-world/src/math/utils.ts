@@ -21,9 +21,9 @@ export function distance(p1: Point, p2: Point): number
     return Math.hypot(p1.x - p2.x, p1.y - p2.y);
 }
 
-export function scale(point: Point, factor: number): Point
+export function average(p1: Point, p2: Point): Point
 {
-    return new Point(point.x * factor, point.y * factor);
+    return new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
 }
 
 export function add(point1: Point, point2: Point): Point
@@ -34,4 +34,59 @@ export function add(point1: Point, point2: Point): Point
 export function subtract(point1: Point, point2: Point): Point
 {
     return new Point(point1.x - point2.x, point1.y - point2.y);
+}
+
+export function scale(p: Point, scaler: number)
+{
+    return new Point(p.x * scaler, p.y * scaler);
+}
+
+export function translate(loc: Point, angle: number, offset: number): Point
+{
+    return new Point
+    (
+        loc.x + Math.cos(angle) * offset,
+        loc.y + Math.sin(angle) * offset
+    );
+}
+
+export function angle(p: Point): number
+{
+    return Math.atan2(p.y, p.x);
+}
+
+export function getIntersection(A: Point, B: Point, C: Point, D: Point): Point | null
+{
+    const tTop: number = (D.x - C.x) * (A.y - C.y) - (D.y - C.y) * (A.x - C.x);
+    const uTop: number = (C.y - A.y) * (A.x - B.x) - (C.x - A.x) * (A.y - B.y);
+    const bottom: number = (D.y - C.y) * (B.x - A.x) - (D.x - C.x) * (B.y - A.y);
+
+    if (bottom != 0)
+    {
+        const t: number = tTop / bottom;
+        const u: number = uTop / bottom;
+        if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
+        {
+            let point = new Point
+            (
+                lerp(A.x, B.x, t),
+                lerp(A.y, B.y, t)
+            )
+            point.offset = t;
+            return point;
+        }
+    }
+
+    return null;
+}
+
+export function lerp(a: number, b: number, t: number): number
+{
+    return a + (b - a) * t;
+}
+
+export function getRandomColor(): string
+{
+    const hue: number = 290 + Math.random() * 260;
+    return "hsl(" + hue + ", 100%, 60%)";
 }

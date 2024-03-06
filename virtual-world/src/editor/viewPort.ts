@@ -5,7 +5,7 @@ export class Viewport
 {
     private readonly ctx: CanvasRenderingContext2D | null;
     private _zoom: number = 1;
-    private center: Point;
+    private readonly center: Point;
     private offset: Point;
     private drag:
     {

@@ -19,7 +19,6 @@ export class Graph
 
     static load(info: Graph): Graph
     {
-        console.log(info)
         const points = info.points.map((i) => new Point(i.x, i.y));
 
         const segments = info.segments.map((i) => new Segment(
