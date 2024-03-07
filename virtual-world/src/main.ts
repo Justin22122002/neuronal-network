@@ -3,6 +3,7 @@ import {Graph} from "./math/graph.ts";
 import {GraphEditor} from "./editor/graphEditor.ts";
 import {Viewport} from "./editor/viewPort.ts";
 import {World} from "./editor/world.ts";
+import {scale} from "./math/utils.ts";
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML =
 `
@@ -53,7 +54,8 @@ function animate(): void
             world.generate();
             oldGraphHash = graph.hash();
         }
-        world.draw(ctx);
+        const viewPoint = scale(viewport.getOffset(), -1);
+        world.draw(ctx, viewPoint);
         ctx.globalAlpha = 0.3;
         graphEditor.display();
         requestAnimationFrame(animate);

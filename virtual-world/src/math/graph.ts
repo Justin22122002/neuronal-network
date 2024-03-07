@@ -20,11 +20,11 @@ export class Graph
 
     static load(info: Graph): Graph
     {
-        const points = info.points.map((i) => new Point(i.x, i.y));
+        const points: Point[] = info.points.map((i: Point) => new Point(i.x, i.y));
 
-        const segments = info.segments.map((i) => new Segment(
-            points.find((p) => p.equals(i.p1))!,
-            points.find((p) => p.equals(i.p2))!
+        const segments: Segment[] = info.segments.map((i: Segment) => new Segment(
+            points.find((p: Point) => p.equals(i.p1))!,
+            points.find((p: Point) => p.equals(i.p2))!
         ));
 
         return new Graph(points, segments);

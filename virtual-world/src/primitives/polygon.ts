@@ -143,19 +143,19 @@ export class Polygon
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D, { stroke = "blue", lineWidth = 2, fill = "rgba(0,0,255,0.3)" } = {}): void
+    draw(ctx: CanvasRenderingContext2D, { stroke = "blue", lineWidth = 2, fill = "rgba(0,0,255,0.3)", join = "miter" } = {}): void
     {
         ctx.beginPath();
         ctx.fillStyle = fill;
         ctx.strokeStyle = stroke;
         ctx.lineWidth = lineWidth;
+        // @ts-ignore
+        ctx.lineJoin = join;
         ctx.moveTo(this.points[0].x, this.points[0].y);
-
-        for (let i: number = 1; i < this.points.length; i++)
+        for (let i = 1; i < this.points.length; i++)
         {
             ctx.lineTo(this.points[i].x, this.points[i].y);
         }
-
         ctx.closePath();
         ctx.fill();
         ctx.stroke();

@@ -4,13 +4,15 @@ import {Polygon} from "../primitives/polygon.ts";
 import {Segment} from "../primitives/segment.ts";
 import {Point} from "../primitives/point.ts";
 import {add, distance, lerp, scale} from "../math/utils.ts";
+import {Building} from "../items/building.ts";
+import {Tree} from "../items/tree.ts";
 
 export class World
 {
     private _envelopes: Envelope[];
     private _roadBorders: Segment[];
-    private _buildings: Polygon[] = [];
-    private _trees: Point[] = [];
+    private _buildings: Building[] = [];
+    private _trees: Tree[] = [];
     constructor
     (
         private graph: Graph,
@@ -39,36 +41,32 @@ export class World
             );
         }
 
-        this._roadBorders = Polygon.union(this._envelopes.map((e) => e.poly));
+        this._roadBorders = Polygon.union(this._envelopes.map((e: Envelope) => e.poly));
         this._buildings = this.generateBuildings();
         this._trees = this.generateTrees();
     }
 
-    private generateTrees() : Point[]
+    private generateTrees() : Tree[]
     {
-        const points =
-        [
+        const points: Point[] = [
             ...this.roadBorders.map((s: Segment) => [s.p1, s.p2]).flat(),
-            ...this._buildings.map((b) => b.points).flat()
+            ...this.buildings.map((b: Building) => b.base.points).flat()
+        ];
+        const left: number = Math.min(...points.map((p: Point) => p.x));
+        const right: number = Math.max(...points.map((p: Point) => p.x));
+        const top: number = Math.min(...points.map((p: Point) => p.y));
+        const bottom: number = Math.max(...points.map((p: Point) => p.y));
+
+        const illegalPolys: Polygon[] = [
+            ...this.buildings.map((b: Building) => b.base),
+            ...this.envelopes.map((e: Envelope) => e.poly)
         ];
 
-        const left = Math.min(...points.map((p) => p.x));
-        const right = Math.max(...points.map((p) => p.x));
-        const top = Math.min(...points.map((p) => p.y));
-        const bottom = Math.max(...points.map((p) => p.y));
-
-        const illegalPolys: Polygon[] =
-        [
-            ...this._buildings,
-            ...this.envelopes.map((e) => e.poly)
-        ];
-
-        const trees = [];
+        const trees: Tree[] = [];
         let tryCount = 0;
         while (tryCount < 100)
         {
-            const p = new Point
-            (
+            const p = new Point(
                 lerp(left, right, Math.random()),
                 lerp(bottom, top, Math.random())
             );
@@ -89,7 +87,7 @@ export class World
             {
                 for (const tree of trees)
                 {
-                    if (distance(tree, p) < this.treeSize)
+                    if (distance(tree.center, p) < this.treeSize)
                     {
                         keep = false;
                         break;
@@ -114,7 +112,7 @@ export class World
 
             if (keep)
             {
-                trees.push(p);
+                trees.push(new Tree(p, this.treeSize));
                 tryCount = 0;
             }
             tryCount++;
@@ -122,15 +120,13 @@ export class World
         return trees;
     }
 
-    private generateBuildings(): Polygon[]
+    private generateBuildings(): Building[]
     {
-        const tmpEnvelopes = [];
+        const tmpEnvelopes: Envelope[] = [];
         for (const seg of this.graph.segments)
         {
-            tmpEnvelopes.push
-            (
-                new Envelope
-                (
+            tmpEnvelopes.push(
+                new Envelope(
                     seg,
                     this.roadWidth + this.buildingWidth + this.spacing * 2,
                     this.roadRoundness
@@ -142,7 +138,7 @@ export class World
 
         for (let i = 0; i < guides.length; i++)
         {
-            const seg = guides[i];
+            const seg: Segment = guides[i];
             if (seg.length() < this.buildingMinLength)
             {
                 guides.splice(i, 1);
@@ -150,20 +146,19 @@ export class World
             }
         }
 
-        const supports = [];
+        const supports: Segment[] = [];
         for (let seg of guides)
         {
             const len = seg.length() + this.spacing;
-            const buildingCount = Math.floor
-            (
+            const buildingCount = Math.floor(
                 len / (this.buildingMinLength + this.spacing)
             );
             const buildingLength = len / buildingCount - this.spacing;
 
-            const dir = seg.directionVector();
+            const dir: Point = seg.directionVector();
 
-            let q1 = seg.p1;
-            let q2 = add(q1, scale(dir, buildingLength));
+            let q1: Point = seg.p1;
+            let q2: Point = add(q1, scale(dir, buildingLength));
             supports.push(new Segment(q1, q2));
 
             for (let i = 2; i <= buildingCount; i++)
@@ -174,7 +169,7 @@ export class World
             }
         }
 
-        const bases = [];
+        const bases: Polygon[] = [];
         for (const seg of supports)
         {
             bases.push(new Envelope(seg, this.buildingWidth).poly);
@@ -197,10 +192,10 @@ export class World
             }
         }
 
-        return bases;
+        return bases.map((b: Polygon) => new Building(b));
     }
 
-    draw(ctx: CanvasRenderingContext2D): void
+    draw(ctx: CanvasRenderingContext2D, viewPoint: Point): void
     {
         for (const env of this._envelopes)
         {
@@ -215,13 +210,16 @@ export class World
             seg.draw(ctx, { color: "white", width: 4 });
         }
 
-        for (const tree of this._trees)
+        const items = [...this.buildings, ...this.trees];
+        items.sort(
+            (a, b) =>
+                b.base.distanceToPoint(viewPoint) -
+                a.base.distanceToPoint(viewPoint)
+        );
+
+        for (const item of items)
         {
-            tree.draw(ctx, { size: this.treeSize, color: "rgba(0,0,0,0.5)" });
-        }
-        for (const bld of this._buildings)
-        {
-            bld.draw(ctx);
+            item.draw(ctx, viewPoint);
         }
     }
 
@@ -246,23 +244,22 @@ export class World
         this._roadBorders = value;
     }
 
-
-    get buildings(): Polygon[]
+    get buildings(): Building[]
     {
         return this._buildings;
     }
 
-    set buildings(value: Polygon[])
+    set buildings(value: Building[])
     {
         this._buildings = value;
     }
 
-    get trees(): Point[]
+    get trees(): Tree[]
     {
         return this._trees;
     }
 
-    set trees(value: Point[])
+    set trees(value: Tree[])
     {
         this._trees = value;
     }

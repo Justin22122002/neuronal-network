@@ -76,7 +76,8 @@ export function getIntersection(A: Point, B: Point, C: Point, D: Point): Point |
     const uTop: number = (C.y - A.y) * (A.x - B.x) - (C.x - A.x) * (A.y - B.y);
     const bottom: number = (D.y - C.y) * (B.x - A.x) - (D.x - C.x) * (B.y - A.y);
 
-    if (bottom != 0)
+    const eps = 0.001;
+    if (Math.abs(bottom) > eps)
     {
         const t: number = tTop / bottom;
         const u: number = uTop / bottom;
@@ -100,8 +101,21 @@ export function lerp(a: number, b: number, t: number): number
     return a + (b - a) * t;
 }
 
+export function lerp2D(A: Point, B: Point, t: number): Point
+{
+    return new Point(lerp(A.x, B.x, t), lerp(A.y, B.y, t));
+}
+
 export function getRandomColor(): string
 {
     const hue: number = 290 + Math.random() * 260;
     return "hsl(" + hue + ", 100%, 60%)";
+}
+
+export function getFake3dPoint(point: Point, viewPoint: Point, height: number): Point
+{
+    const dir: Point = normalize(subtract(point, viewPoint));
+    const dist: number = distance(point, viewPoint);
+    const scaler: number = Math.atan(dist / 300) / (Math.PI / 2);
+    return add(point, scale(dir, height * scaler));
 }
