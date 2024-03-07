@@ -1,9 +1,20 @@
 import {Point} from "./point.ts";
+import {add, distance, dot, magnitude, normalize, scale, subtract} from "../math/utils.ts";
 
 export class Segment
 {
     constructor(private _p1: Point, private _p2: Point)
     {
+    }
+
+    length()
+    {
+        return distance(this.p1, this.p2);
+    }
+
+    directionVector(): Point
+    {
+        return normalize(subtract(this.p2, this.p1));
     }
 
     equals(seg: Segment): boolean
@@ -14,6 +25,32 @@ export class Segment
     includes(point: Point): boolean
     {
         return this._p1.equals(point) || this._p2.equals(point);
+    }
+
+    distanceToPoint(point: Point): number
+    {
+        const proj: Point = this.projectPoint(point);
+        if(proj.offset)
+        {
+            if (proj.offset > 0 && proj.offset < 1)
+            {
+                return distance(point, proj);
+            }
+        }
+        const distToP1: number = distance(point, this.p1);
+        const distToP2: number = distance(point, this.p2);
+        return Math.min(distToP1, distToP2);
+    }
+
+    projectPoint(point: Point): Point
+    {
+        const a: Point = subtract(point, this.p1);
+        const b: Point = subtract(this.p2, this.p1);
+        const normB: Point = normalize(b);
+        const scaler: number = dot(a, normB);
+        const proj: Point = add(this.p1, scale(normB, scaler));
+        proj.offset = scaler / magnitude(b);
+        return proj;
     }
 
     draw(ctx: CanvasRenderingContext2D, { width = 2, color = "black", dash = [] as number[] } = {}): void

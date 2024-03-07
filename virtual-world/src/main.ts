@@ -18,9 +18,9 @@ const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanva
 canvas.width = 600;
 canvas.height = 600;
 
-const canvasCtx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
 
-if(!canvasCtx)
+if(!ctx)
 {
     throw new Error("Canvas not supported");
 }
@@ -40,16 +40,21 @@ const disposeButton = document.getElementById('dispose') as HTMLButtonElement;
 saveButton.addEventListener("click", save);
 disposeButton.addEventListener("click", dispose);
 
+let oldGraphHash: string = graph.hash();
 animate();
 
 function animate(): void
 {
-    if (canvasCtx)
+    if (ctx)
     {
         viewport.reset();
-        world.generate();
-        world.draw(canvasCtx);
-        canvasCtx.globalAlpha = 0.3;
+        if (graph.hash() != oldGraphHash)
+        {
+            world.generate();
+            oldGraphHash = graph.hash();
+        }
+        world.draw(ctx);
+        ctx.globalAlpha = 0.3;
         graphEditor.display();
         requestAnimationFrame(animate);
     }

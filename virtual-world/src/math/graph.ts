@@ -11,7 +11,8 @@ export class Graph
 
     toJSON(): string
     {
-        return JSON.stringify({
+        return JSON.stringify(
+        {
             points: this._points.map((p) => ({x: p.x, y: p.y})),
             segments: this._segments.map((s) => ({p1: {x: s.p1.x, y: s.p1.y}, p2: {x: s.p2.x, y: s.p2.y}}))
         });
@@ -27,6 +28,11 @@ export class Graph
         ));
 
         return new Graph(points, segments);
+    }
+
+    hash(): string
+    {
+        return this.toJSON();
     }
 
     addPoint(point: Point): void

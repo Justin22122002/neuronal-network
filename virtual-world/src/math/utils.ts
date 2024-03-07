@@ -2,7 +2,7 @@ import {Point} from "../primitives/point.ts";
 
 export function getNearestPoint(target: Point, points: Point[], threshold: number = Number.MAX_SAFE_INTEGER): Point | null
 {
-    let minDist = Number.MAX_SAFE_INTEGER;
+    let minDist: number = Number.MAX_SAFE_INTEGER;
     let nearest = null;
     for (const point of points)
     {
@@ -26,6 +26,11 @@ export function average(p1: Point, p2: Point): Point
     return new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
 }
 
+export function dot(p1: Point, p2: Point): number
+{
+    return p1.x * p2.x + p1.y * p2.y;
+}
+
 export function add(point1: Point, point2: Point): Point
 {
     return new Point(point1.x + point2.x, point1.y + point2.y);
@@ -39,6 +44,16 @@ export function subtract(point1: Point, point2: Point): Point
 export function scale(p: Point, scaler: number)
 {
     return new Point(p.x * scaler, p.y * scaler);
+}
+
+export function normalize(p: Point): Point
+{
+    return scale(p, 1 / magnitude(p));
+}
+
+export function magnitude(p: Point): number
+{
+    return Math.hypot(p.x, p.y);
 }
 
 export function translate(loc: Point, angle: number, offset: number): Point
