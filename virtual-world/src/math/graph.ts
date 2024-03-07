@@ -13,8 +13,8 @@ export class Graph
     {
         return JSON.stringify(
         {
-            points: this._points.map((p) => ({x: p.x, y: p.y})),
-            segments: this._segments.map((s) => ({p1: {x: s.p1.x, y: s.p1.y}, p2: {x: s.p2.x, y: s.p2.y}}))
+            points: this._points.map((p: Point) => ({x: p.x, y: p.y})),
+            segments: this._segments.map((s: Segment) => ({p1: {x: s.p1.x, y: s.p1.y}, p2: {x: s.p2.x, y: s.p2.y}}))
         });
     }
 
@@ -42,7 +42,7 @@ export class Graph
 
     containsPoint(point: Point): Point | undefined
     {
-        return this._points.find((p) => p.equals(point));
+        return this._points.find((p: Point) => p.equals(point));
     }
 
     tryAddPoint(point: Point): boolean
@@ -72,7 +72,7 @@ export class Graph
 
     containsSegment(seg: Segment): Segment | undefined
     {
-        return this._segments.find((s) => s.equals(seg));
+        return this._segments.find((s: Segment) => s.equals(seg));
     }
 
     tryAddSegment(seg: Segment): boolean

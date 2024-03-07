@@ -32,7 +32,7 @@ export class Tree
 
     draw(ctx: CanvasRenderingContext2D, viewPoint: Point): void
     {
-        const top = getFake3dPoint(this._center, viewPoint, this.height);
+        const top: Point = getFake3dPoint(this._center, viewPoint, this.height);
 
         const levelCount = 7;
         for (let level = 0; level < levelCount; level++)

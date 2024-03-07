@@ -91,12 +91,12 @@ export class Polygon
 
     distanceToPoint(point: Point): number
     {
-        return Math.min(...this.segments.map((s) => s.distanceToPoint(point)));
+        return Math.min(...this.segments.map((s: Segment) => s.distanceToPoint(point)));
     }
 
     distanceToPoly(poly: Polygon): number
     {
-        return Math.min(...this.points.map((p) => poly.distanceToPoint(p)));
+        return Math.min(...this.points.map((p: Point) => poly.distanceToPoint(p)));
     }
 
     intersectsPoly(poly: Polygon): boolean

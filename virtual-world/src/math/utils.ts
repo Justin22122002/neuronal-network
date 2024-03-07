@@ -6,7 +6,7 @@ export function getNearestPoint(target: Point, points: Point[], threshold: numbe
     let nearest = null;
     for (const point of points)
     {
-        const dist = distance(point, target);
+        const dist: number = distance(point, target);
         if (dist < minDist && dist < threshold)
         {
             minDist = dist;

@@ -210,9 +210,9 @@ export class World
             seg.draw(ctx, { color: "white", width: 4 });
         }
 
-        const items = [...this.buildings, ...this.trees];
+        const items: (Building | Tree)[] = [...this.buildings, ...this.trees];
         items.sort(
-            (a, b) =>
+            (a: Building | Tree, b: Building | Tree) =>
                 b.base.distanceToPoint(viewPoint) -
                 a.base.distanceToPoint(viewPoint)
         );

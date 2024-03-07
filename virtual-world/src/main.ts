@@ -26,9 +26,9 @@ if(!ctx)
     throw new Error("Canvas not supported");
 }
 
-const graphString = localStorage.getItem("graph");
+const graphString: string | null = localStorage.getItem("graph");
 const graphInfo: Graph = graphString ? JSON.parse(graphString) : null;
-const graph = graphString
+const graph: Graph = graphString
     ? Graph.load(graphInfo)
     : new Graph();
 
@@ -36,8 +36,8 @@ const world = new World(graph);
 const viewport = new Viewport(canvas);
 const graphEditor = new GraphEditor(viewport, graph);
 
-const saveButton = document.getElementById('save') as HTMLButtonElement;
-const disposeButton = document.getElementById('dispose') as HTMLButtonElement;
+const saveButton: HTMLButtonElement = document.getElementById('save') as HTMLButtonElement;
+const disposeButton: HTMLButtonElement = document.getElementById('dispose') as HTMLButtonElement;
 saveButton.addEventListener("click", save);
 disposeButton.addEventListener("click", dispose);
 
@@ -62,12 +62,12 @@ function animate(): void
     }
 }
 
-function dispose()
+function dispose(): void
 {
     graphEditor.dispose();
 }
 
-function save()
+function save(): void
 {
     localStorage.setItem("graph", graph.toJSON());
 }
