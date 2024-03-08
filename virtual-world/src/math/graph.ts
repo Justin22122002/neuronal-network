@@ -5,18 +5,9 @@ export class Graph
 {
     constructor
     (
-        private _points: Point[] = [],
-        private _segments: Segment[] = []
+        public points: Point[] = [],
+        public segments: Segment[] = []
     ) {}
-
-    toJSON(): string
-    {
-        return JSON.stringify(
-        {
-            points: this._points.map((p: Point) => ({x: p.x, y: p.y})),
-            segments: this._segments.map((s: Segment) => ({p1: {x: s.p1.x, y: s.p1.y}, p2: {x: s.p2.x, y: s.p2.y}}))
-        });
-    }
 
     static load(info: Graph): Graph
     {
@@ -32,17 +23,17 @@ export class Graph
 
     hash(): string
     {
-        return this.toJSON();
+        return JSON.stringify(this);
     }
 
     addPoint(point: Point): void
     {
-        this._points.push(point);
+        this.points.push(point);
     }
 
     containsPoint(point: Point): Point | undefined
     {
-        return this._points.find((p: Point) => p.equals(point));
+        return this.points.find((p: Point) => p.equals(point));
     }
 
     tryAddPoint(point: Point): boolean
@@ -62,17 +53,17 @@ export class Graph
         {
             this.removeSegment(seg);
         }
-        this._points.splice(this._points.indexOf(point), 1);
+        this.points.splice(this.points.indexOf(point), 1);
     }
 
     addSegment(seg: Segment): void
     {
-        this._segments.push(seg);
+        this.segments.push(seg);
     }
 
     containsSegment(seg: Segment): Segment | undefined
     {
-        return this._segments.find((s: Segment) => s.equals(seg));
+        return this.segments.find((s: Segment) => s.equals(seg));
     }
 
     tryAddSegment(seg: Segment): boolean
@@ -87,13 +78,13 @@ export class Graph
 
     removeSegment(seg: Segment): void
     {
-        this._segments.splice(this._segments.indexOf(seg), 1);
+        this.segments.splice(this.segments.indexOf(seg), 1);
     }
 
     getSegmentsWithPoint(point: Point): Segment[]
     {
         const segs: Segment[] = [];
-        for (const seg of this._segments)
+        for (const seg of this.segments)
         {
             if (seg.includes(point))
             {
@@ -105,41 +96,20 @@ export class Graph
 
     dispose(): void
     {
-        this._points.length = 0;
-        this._segments.length = 0;
+        this.points.length = 0;
+        this.segments.length = 0;
     }
 
     draw(ctx: CanvasRenderingContext2D): void
     {
-        for (const seg of this._segments)
+        for (const seg of this.segments)
         {
             seg.draw(ctx);
         }
 
-        for (const point of this._points)
+        for (const point of this.points)
         {
             point.draw(ctx);
         }
-    }
-
-
-    get points(): Point[]
-    {
-        return this._points;
-    }
-
-    set points(value: Point[])
-    {
-        this._points = value;
-    }
-
-    get segments(): Segment[]
-    {
-        return this._segments;
-    }
-
-    set segments(value: Segment[])
-    {
-        this._segments = value;
     }
 }

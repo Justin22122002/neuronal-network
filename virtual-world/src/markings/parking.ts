@@ -1,11 +1,12 @@
 import {Marking} from "./marking.ts";
+import {MarkingType} from "./markingType.ts";
 import {angle} from "../math/utils.ts";
 import {Point} from "../primitives/point.ts";
 import {Segment} from "../primitives/segment.ts";
 
 export class Parking extends Marking
 {
-    private _borders: Segment[];
+    public borders: Segment[];
     constructor
     (
         center: Point,
@@ -16,12 +17,13 @@ export class Parking extends Marking
     {
         super(center, directionVector, width, height);
 
-        this._borders = [this.poly.segments[0], this.poly.segments[2]];
+        this.borders = [this.poly.segments[0], this.poly.segments[2]];
+        this.type = MarkingType.PARKING;
     }
 
     draw(ctx: CanvasRenderingContext2D): void
     {
-        for (const border of this._borders)
+        for (const border of this.borders)
         {
             border.draw(ctx, { width: 5, color: "white" });
         }
@@ -37,16 +39,5 @@ export class Parking extends Marking
         ctx.fillText("P", 0, 3);
 
         ctx.restore();
-    }
-
-
-    get borders(): Segment[]
-    {
-        return this._borders;
-    }
-
-    set borders(value: Segment[])
-    {
-        this._borders = value;
     }
 }

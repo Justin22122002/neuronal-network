@@ -1,12 +1,13 @@
 import {Marking} from "./marking.ts";
+import {MarkingType} from "./markingType.ts";
 import {Point} from "../primitives/point.ts";
 import {add, lerp2D, perpendicular, scale} from "../math/utils.ts";
 import {Segment} from "../primitives/segment.ts";
 
 export class Light extends Marking
 {
-    private _state: string;
-    private _border: Segment;
+    public state: string;
+    public border: Segment;
     constructor
     (
         center: Point,
@@ -17,8 +18,9 @@ export class Light extends Marking
     {
         super(center, directionVector, width, height);
 
-        this._state = "off";
-        this._border = this.poly.segments[0];
+        this.state = "off";
+        this.border = this.poly.segments[0];
+        this.type = MarkingType.LIGHT;
     }
 
     draw(ctx: CanvasRenderingContext2D): void 
@@ -34,7 +36,7 @@ export class Light extends Marking
         const red: Point = lerp2D(line.p1, line.p2, 0.8);
 
         new Segment(red, green).draw(ctx,
-            {
+        {
             width: this.height,
             cap: "round"
         });
@@ -43,7 +45,7 @@ export class Light extends Marking
         yellow.draw(ctx, { size: this.height * 0.6, color: "#660" });
         red.draw(ctx, { size: this.height * 0.6, color: "#600" });
 
-        switch (this._state)
+        switch (this.state)
         {
             case "green":
                 green.draw(ctx, { size: this.height * 0.6, color: "#0F0" });
@@ -55,26 +57,5 @@ export class Light extends Marking
                 red.draw(ctx, { size: this.height * 0.6, color: "#F00" });
                 break;
         }
-    }
-
-    get border(): Segment 
-    {
-        return this._border;
-    }
-
-    set border(value: Segment) 
-    {
-        this._border = value;
-    }
-
-
-    get state(): string
-    {
-        return this._state;
-    }
-
-    set state(value: string)
-    {
-        this._state = value;
     }
 }

@@ -6,8 +6,8 @@ export class Polygon
 {
     constructor
     (
-        private _points: Point[],
-        private _segments: Segment[]
+        public points: Point[],
+        public segments: Segment[]
     )
     {
         for (let i = 1; i <= this.points.length; i++)
@@ -17,6 +17,14 @@ export class Polygon
                 new Segment((this.points)[i - 1], (this.points)[i % this.points.length])
             );
         }
+    }
+
+    static load(info: Polygon): Polygon
+    {
+        return new Polygon(
+            info.points.map((i) => new Point(i.x, i.y)),
+            []
+        );
     }
 
     static union(polys: Polygon[]): Segment[]
@@ -159,27 +167,5 @@ export class Polygon
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
-    }
-
-
-    get points(): Point[]
-    {
-        return this._points;
-    }
-
-    set points(value: Point[])
-    {
-        this._points = value;
-    }
-
-
-    get segments(): Segment[]
-    {
-        return this._segments;
-    }
-
-    set segments(value: Segment[])
-    {
-        this._segments = value;
     }
 }

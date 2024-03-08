@@ -6,25 +6,28 @@ export class Building
 {
     constructor
     (
-        private _base: Polygon,
-        private readonly height = 200
-    )
+        public base: Polygon,
+        public readonly height = 200
+    ) {}
+
+    static load(info: Building): Building
     {
+        return new Building(Polygon.load(info.base), info.height);
     }
 
     draw(ctx: CanvasRenderingContext2D, viewPoint: Point): void
     {
-        const topPoints: Point[] = this._base.points.map((p: Point) =>
+        const topPoints: Point[] = this.base.points.map((p: Point) =>
             getFake3dPoint(p, viewPoint, this.height * 0.6)
         );
         const ceiling: Polygon = new Polygon(topPoints, []);
 
         const sides: Polygon[] = [];
-        for (let i = 0; i < this._base.points.length; i++)
+        for (let i = 0; i < this.base.points.length; i++)
         {
-            const nextI: number = (i + 1) % this._base.points.length;
+            const nextI: number = (i + 1) % this.base.points.length;
             const poly: Polygon = new Polygon([
-                this._base.points[i], this._base.points[nextI],
+                this.base.points[i], this.base.points[nextI],
                 topPoints[nextI], topPoints[i]
             ], []);
             sides.push(poly);
@@ -36,8 +39,8 @@ export class Building
         );
 
         const baseMidpoints: Point[] = [
-            average(this._base.points[0], this._base.points[1]),
-            average(this._base.points[2], this._base.points[3])
+            average(this.base.points[0], this.base.points[1]),
+            average(this.base.points[2], this.base.points[3])
         ];
 
         const topMidpoints: Point[] = baseMidpoints.map((p: Point) =>
@@ -60,7 +63,7 @@ export class Building
                 a.distanceToPoint(viewPoint)
         );
 
-        this._base.draw(ctx, { fill: "white", stroke: "rgba(0,0,0,0.2)", lineWidth: 20 });
+        this.base.draw(ctx, { fill: "white", stroke: "rgba(0,0,0,0.2)", lineWidth: 20 });
         for (const side of sides) {
             side.draw(ctx, { fill: "white", stroke: "#AAA" });
         }
@@ -68,16 +71,5 @@ export class Building
         for (const poly of roofPolys) {
             poly.draw(ctx, { fill: "#D44", stroke: "#C44", lineWidth: 8, join: "round" });
         }
-    }
-
-
-    get base(): Polygon
-    {
-        return this._base;
-    }
-
-    set base(value: Polygon)
-    {
-        this._base = value;
     }
 }

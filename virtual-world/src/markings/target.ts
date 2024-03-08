@@ -1,4 +1,5 @@
 import {Marking} from "./marking.ts";
+import {MarkingType} from "./markingType.ts";
 import {Point} from "../primitives/point.ts";
 
 export class Target extends Marking
@@ -12,12 +13,13 @@ export class Target extends Marking
     )
     {
         super(center, directionVector, width, height);
+        this._type = MarkingType.TARGET;
     }
 
     draw(ctx: CanvasRenderingContext2D): void
     {
-        this.center.draw(ctx, { color: "red", size: 30 });
-        this.center.draw(ctx, { color: "white", size: 20 });
-        this.center.draw(ctx, { color: "red", size: 10 });
+        this._center.draw(ctx, { color: "red", size: 30 });
+        this._center.draw(ctx, { color: "white", size: 20 });
+        this._center.draw(ctx, { color: "red", size: 10 });
     }
 }

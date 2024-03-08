@@ -3,33 +3,36 @@ import {add, scale, subtract} from "../math/utils.ts";
 
 export class Viewport
 {
-    private readonly ctx: CanvasRenderingContext2D | null;
-    private _zoom: number = 1;
-    private readonly center: Point;
-    private offset: Point;
-    private drag:
-    {
-        start: Point;
-        end: Point;
-        offset: Point;
-        active: boolean;
-    };
+    public readonly ctx: CanvasRenderingContext2D | null;
+    public readonly center: Point;
+    public drag:
+        {
+            start: Point;
+            end: Point;
+            offset: Point;
+            active: boolean;
+        };
 
-    constructor(private _canvas: HTMLCanvasElement)
+    constructor
+    (
+        public canvas: HTMLCanvasElement,
+        public offset: Point,
+        public zoom: number = 1
+    )
     {
-        this.ctx = _canvas.getContext("2d");
+        this.ctx = canvas.getContext("2d");
 
-        this._zoom = 1;
-        this.center = new Point(_canvas.width / 2, _canvas.height / 2);
-        this.offset = scale(this.center, -1);
+        this.zoom = 1;
+        this.center = new Point(canvas.width / 2, canvas.height / 2);
+        this.offset = this.offset ? this.offset : scale(this.center, -1);
 
         this.drag =
-        {
-            start: new Point(0, 0),
-            end: new Point(0, 0),
-            offset: new Point(0, 0),
-            active: false,
-        };
+            {
+                start: new Point(0, 0),
+                end: new Point(0, 0),
+                offset: new Point(0, 0),
+                active: false,
+            };
 
         this.addEventListeners();
     }
@@ -39,10 +42,10 @@ export class Viewport
         if (!this.ctx) return;
 
         this.ctx.restore();
-        this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.save();
         this.ctx.translate(this.center.x, this.center.y);
-        this.ctx.scale(1 / this._zoom, 1 / this._zoom);
+        this.ctx.scale(1 / this.zoom, 1 / this.zoom);
         const offset = this.getOffset();
         this.ctx.translate(offset.x, offset.y);
     }
@@ -50,8 +53,8 @@ export class Viewport
     getMouse(evt: MouseEvent, subtractDragOffset: boolean = false): Point
     {
         const p = new Point(
-            (evt.offsetX - this.center.x) * this._zoom - this.offset.x,
-            (evt.offsetY - this.center.y) * this._zoom - this.offset.y
+            (evt.offsetX - this.center.x) * this.zoom - this.offset.x,
+            (evt.offsetY - this.center.y) * this.zoom - this.offset.y
         );
         return subtractDragOffset ? subtract(p, this.drag.offset) : p;
     }
@@ -63,10 +66,10 @@ export class Viewport
 
     private addEventListeners(): void
     {
-        this._canvas.addEventListener("wheel", this.handleMouseWheel.bind(this));
-        this._canvas.addEventListener("mousedown", this.handleMouseDown.bind(this));
-        this._canvas.addEventListener("mousemove", this.handleMouseMove.bind(this));
-        this._canvas.addEventListener("mouseup", this.handleMouseUp.bind(this));
+        this.canvas.addEventListener("wheel", this.handleMouseWheel.bind(this));
+        this.canvas.addEventListener("mousedown", this.handleMouseDown.bind(this));
+        this.canvas.addEventListener("mousemove", this.handleMouseMove.bind(this));
+        this.canvas.addEventListener("mouseup", this.handleMouseUp.bind(this));
     }
 
     private handleMouseDown(evt: MouseEvent): void
@@ -107,28 +110,7 @@ export class Viewport
     {
         const dir = Math.sign(evt.deltaY);
         const step = 0.1;
-        this._zoom += dir * step;
-        this._zoom = Math.max(1, Math.min(5, this._zoom));
-    }
-
-    get canvas(): HTMLCanvasElement
-    {
-        return this._canvas;
-    }
-
-    set canvas(value: HTMLCanvasElement)
-    {
-        this._canvas = value;
-    }
-
-
-    get zoom(): number
-    {
-        return this._zoom;
-    }
-
-    set zoom(value: number)
-    {
-        this._zoom = value;
+        this.zoom += dir * step;
+        this.zoom = Math.max(1, Math.min(5, this.zoom));
     }
 }

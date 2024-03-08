@@ -3,7 +3,7 @@ import {add, distance, dot, magnitude, normalize, scale, subtract} from "../math
 
 export class Segment
 {
-    constructor(private _p1: Point, private _p2: Point)
+    constructor(public p1: Point, public p2: Point)
     {
     }
 
@@ -19,12 +19,12 @@ export class Segment
 
     equals(seg: Segment): boolean
     {
-        return this.includes(seg._p1) && this.includes(seg._p2);
+        return this.includes(seg.p1) && this.includes(seg.p2);
     }
 
     includes(point: Point): boolean
     {
-        return this._p1.equals(point) || this._p2.equals(point);
+        return this.p1.equals(point) || this.p2.equals(point);
     }
 
     distanceToPoint(point: Point): number
@@ -65,26 +65,5 @@ export class Segment
         ctx.lineTo(this.p2.x, this.p2.y);
         ctx.stroke();
         ctx.setLineDash([]);
-    }
-
-    get p1(): Point
-    {
-
-        return this._p1;
-    }
-
-    set p1(value: Point)
-    {
-        this._p1 = value;
-    }
-
-    get p2(): Point
-    {
-        return this._p2;
-    }
-
-    set p2(value: Point)
-    {
-        this._p2 = value;
     }
 }

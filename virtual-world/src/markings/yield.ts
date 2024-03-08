@@ -1,11 +1,13 @@
 import {Point} from "../primitives/point.ts";
 import {Marking} from "./marking.ts";
+import {MarkingType} from "./markingType.ts";
 import {angle} from "../math/utils.ts";
 import {Segment} from "../primitives/segment.ts";
 
 export class Yield extends Marking
 {
-    private _border: Segment;
+    public border: Segment;
+
     constructor
     (
         center: Point,
@@ -16,12 +18,13 @@ export class Yield extends Marking
     {
         super(center, directionVector, width, height);
 
-        this._border = this.poly.segments[2];
+        this.border = this.poly.segments[2];
+        this.type = MarkingType.YIELD;
     }
 
     draw(ctx: CanvasRenderingContext2D): void
     {
-        this._border.draw(ctx, { width: 5, color: "white" });
+        this.border.draw(ctx, { width: 5, color: "white" });
         ctx.save();
         ctx.translate(this.center.x, this.center.y);
         ctx.rotate(angle(this.directionVector) - Math.PI / 2);
@@ -35,16 +38,5 @@ export class Yield extends Marking
         ctx.fillText("YIELD", 0, 1);
 
         ctx.restore();
-    }
-
-
-    get border(): Segment
-    {
-        return this._border;
-    }
-
-    set border(value: Segment)
-    {
-        this._border = value;
     }
 }

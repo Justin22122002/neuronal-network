@@ -19,7 +19,16 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML =
     <div id="controls">
         <button id="dispose">🗑️</button>
         <button id="save">💾</button>
-        &nbsp;
+        
+        <label for="fileInput" class="file-input-label">
+            📁
+            <input
+               type="file"
+               id="fileInput"
+               accept=".world"
+            />
+         </label>
+        &nbsp
         <button id="graphBtn">🌐</button>
         <button id="stopBtn">🛑</button>
         <button id="yieldBtn">⚠️</button>
@@ -30,6 +39,15 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML =
         <button id="targetBtn">🎯</button>
     </div>
 `
+
+interface Tools
+{
+    [key: string]:
+        {
+            button: HTMLButtonElement;
+            editor: GraphEditor | StopEditor | CrossingEditor | StartEditor | ParkingEditor | LightEditor | TargetEditor | YieldEditor;
+        };
+}
 
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
 canvas.width = 600;
@@ -42,16 +60,12 @@ if (!ctx)
     throw new Error("Canvas not supported");
 }
 
-const graphString: string | null = localStorage.getItem("graph");
-const graphInfo: Graph = graphString ? JSON.parse(graphString) : null;
-const graph: Graph = graphString
-    ? Graph.load(graphInfo)
-    : new Graph();
-
 const saveButton: HTMLButtonElement = document.getElementById('save') as HTMLButtonElement;
 const disposeButton: HTMLButtonElement = document.getElementById('dispose') as HTMLButtonElement;
+const fileInput: HTMLInputElement = document.getElementById('fileInput') as HTMLInputElement;
 saveButton.addEventListener("click", save);
 disposeButton.addEventListener("click", dispose);
+fileInput.onchange = (event) => load(event);
 
 const graphBtn: HTMLButtonElement = document.getElementById('graphBtn') as HTMLButtonElement;
 const stopBtn: HTMLButtonElement = document.getElementById('stopBtn') as HTMLButtonElement;
@@ -71,44 +85,43 @@ lightBtn.addEventListener("click", () => setMode('light'));
 targetBtn.addEventListener("click", () => setMode('target'));
 yieldBtn.addEventListener("click", () => setMode('yield'));
 
-const world = new World(graph);
-const viewport = new Viewport(canvas);
-interface Tools
-{
-    [key: string]:
-        {
-        button: HTMLButtonElement;
-        editor: GraphEditor | StopEditor | CrossingEditor | StartEditor | ParkingEditor | LightEditor | TargetEditor | YieldEditor;
-    };
-}
+const worldString = localStorage.getItem("world");
+const worldInfo = worldString ? JSON.parse(worldString) : null;
+
+console.log(worldInfo)
+let world = worldInfo
+    ? await World.load(worldInfo)
+    : new World(new Graph());
+
+const viewport = new Viewport(canvas, world.offset, world.zoom);
 
 const tools: Tools =
     {
-    graph: { button: graphBtn, editor: new GraphEditor(viewport, graph) },
-    stop: { button: stopBtn, editor: new StopEditor(viewport, world) },
-    crossing: { button: crossingBtn, editor: new CrossingEditor(viewport, world) },
-    start: { button: startBtn, editor: new StartEditor(viewport, world) },
-    parking: { button: parkingBtn, editor: new ParkingEditor(viewport, world) },
-    light: { button: lightBtn, editor: new LightEditor(viewport, world) },
-    target: { button: targetBtn, editor: new TargetEditor(viewport, world) },
-    yield: { button: yieldBtn, editor: new YieldEditor(viewport, world) },
-};
+        graph: { button: graphBtn, editor: new GraphEditor(viewport, world.graph) },
+        stop: { button: stopBtn, editor: new StopEditor(viewport, world) },
+        crossing: { button: crossingBtn, editor: new CrossingEditor(viewport, world) },
+        start: { button: startBtn, editor: new StartEditor(viewport, world) },
+        parking: { button: parkingBtn, editor: new ParkingEditor(viewport, world) },
+        light: { button: lightBtn, editor: new LightEditor(viewport, world) },
+        target: { button: targetBtn, editor: new TargetEditor(viewport, world) },
+        yield: { button: yieldBtn, editor: new YieldEditor(viewport, world) },
+    };
 
-
-let oldGraphHash: string = graph.hash();
+let oldGraphHash: string = world.graph.hash();
 
 setMode("graph");
 
 animate();
 
-function animate()
+function animate(): void
 {
     if(!ctx) return;
+
     viewport.reset();
-    if (graph.hash() != oldGraphHash)
+    if (world.graph.hash() != oldGraphHash)
     {
         world.generate();
-        oldGraphHash = graph.hash();
+        oldGraphHash = world.graph.hash();
     }
     const viewPoint = scale(viewport.getOffset(), -1);
     world.draw(ctx, viewPoint);
@@ -127,10 +140,57 @@ function dispose(): void
     world.markings.length = 0;
 }
 
-function save(): void
+function save()
 {
-    localStorage.setItem("graph", graph.toJSON());
+    world.zoom = viewport.zoom;
+    world.offset = viewport.offset;
+
+    const element = document.createElement("a");
+    element.setAttribute(
+        "href",
+        "data:application/json;charset=utf-8," +
+        encodeURIComponent(JSON.stringify(world))
+    );
+
+    const fileName = "name.world";
+    element.setAttribute("download", fileName);
+
+    element.click();
+
+    localStorage.setItem("world", JSON.stringify(world));
 }
+
+function load(event: Event): void
+{
+    const fileInput = event.target as HTMLInputElement;
+    const file = fileInput.files?.[0];
+
+    if (!file)
+    {
+        alert("No file selected.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsText(file);
+
+    reader.onload = async (evt: ProgressEvent<FileReader>) =>
+    {
+        const fileContent = evt.target?.result as string;
+        try
+        {
+            const jsonData = JSON.parse(fileContent);
+            world = await World.load(jsonData);
+            localStorage.setItem("world", JSON.stringify(world));
+            location.reload();
+        } catch (error)
+        {
+            console.error("Error parsing JSON:", error);
+            alert("Error parsing JSON. Please check the file format.");
+        }
+    };
+}
+
 
 function setMode(mode: string): void
 {

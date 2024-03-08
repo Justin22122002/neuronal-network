@@ -1,18 +1,18 @@
 export class Point
 {
-    private _offset?: number
+    public offset?: number
 
     constructor
     (
-        private _x: number,
-        private _y: number,
+        public x: number,
+        public y: number,
     )
     {
     }
 
     equals(point: Point): boolean
     {
-        return this._x == point.x && this._y == point.y;
+        return this.x == point.x && this.y == point.y;
     }
 
     draw(ctx: CanvasRenderingContext2D, { size = 18, color = "black", outline = false, fill = false } = {})
@@ -38,36 +38,5 @@ export class Point
             ctx.fillStyle = "yellow";
             ctx.fill();
         }
-    }
-
-    get x(): number
-    {
-        return this._x;
-    }
-
-    set x(value: number)
-    {
-        this._x = value;
-    }
-
-    get y(): number
-    {
-        return this._y;
-    }
-
-    set y(value: number)
-    {
-        this._y = value;
-    }
-
-
-    get offset(): number | undefined
-    {
-        return this._offset;
-    }
-
-    set offset(value: number)
-    {
-        this._offset = value;
     }
 }

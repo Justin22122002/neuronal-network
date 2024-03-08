@@ -19,41 +19,66 @@ interface ControlCenter
 
 export class World
 {
-    private _envelopes: Envelope[] = [];
-    private _roadBorders: Segment[] = [];
-    private _buildings: Building[] = [];
-    private _trees: Tree[] = [];
-    private _markings: Marking[] = [];
-    private _frameCount: number = 0;
-    private _laneGuides: Segment[] = [];
+    public envelopes: Envelope[] = [];
+    public roadBorders: Segment[] = [];
+    public buildings: Building[] = [];
+    public trees: Tree[] = [];
+    public markings: Marking[] = [];
+    public frameCount: number = 0;
+    public laneGuides: Segment[] = [];
+    public zoom: number = 1;
+    public offset: Point = new Point(0, 0);
     constructor
     (
-        private _graph: Graph,
-        private _roadWidth = 100,
-        private _roadRoundness = 10,
-        private _buildingWidth = 150,
-        private _buildingMinLength = 150,
-        private _spacing = 50,
-        private _treeSize = 160
+        public graph: Graph,
+        public roadWidth = 100,
+        public roadRoundness = 10,
+        public buildingWidth = 150,
+        public buildingMinLength = 150,
+        public spacing = 50,
+        public treeSize = 160
     )
     {
         this.generate();
     }
 
+    static async load(info: World): Promise<World>
+    {
+        const world = new World(new Graph());
+        world.graph = Graph.load(info.graph);
+        world.roadWidth = info.roadWidth;
+        world.roadRoundness = info.roadRoundness;
+        world.buildingWidth = info.buildingWidth;
+        world.buildingMinLength = info.buildingMinLength;
+        world.spacing = info.spacing;
+        world.treeSize = info.treeSize;
+        world.envelopes = info.envelopes.map((e) => Envelope.load(e));
+        world.roadBorders = info.roadBorders.map((b) => new Segment(b.p1, b.p2));
+        world.buildings = info.buildings.map((e) => Building.load(e));
+        world.trees = info.trees.map((t) => new Tree(t.center, info.treeSize));
+        world.laneGuides = info.laneGuides.map((g) => new Segment(g.p1, g.p2));
+
+        world.markings = await Promise.all(info.markings.map(async (m) => await Marking.load(m)));
+
+        world.zoom = info.zoom;
+        world.offset = info.offset;
+        return world;
+    }
+
     generate(): void
     {
-        this._envelopes.length = 0;
-        for (const seg of this._graph.segments)
+        this.envelopes.length = 0;
+        for (const seg of this.graph.segments)
         {
-            this._envelopes.push
+            this.envelopes.push
             (
-                new Envelope(seg, this._roadWidth, this._roadRoundness)
+                new Envelope(seg, this.roadWidth, this.roadRoundness)
             );
         }
 
-        this._roadBorders = Polygon.union(this._envelopes.map((e: Envelope) => e.poly));
-        this._buildings = this.generateBuildings();
-        this._trees = this.generateTrees();
+        this.roadBorders = Polygon.union(this.envelopes.map((e: Envelope) => e.poly));
+        this.buildings = this.generateBuildings();
+        this.trees = this.generateTrees();
 
         this.laneGuides.length = 0;
         this.laneGuides.push(...this.generateLaneGuides());
@@ -62,10 +87,10 @@ export class World
     private generateLaneGuides(): Segment[]
     {
         const tmpEnvelopes: Envelope[] = [];
-        for (const seg of this._graph.segments)
+        for (const seg of this.graph.segments)
         {
             tmpEnvelopes.push(
-                new Envelope(seg, this._roadWidth / 2, this._roadRoundness)
+                new Envelope(seg, this.roadWidth / 2, this.roadRoundness)
             );
         }
 
@@ -102,7 +127,7 @@ export class World
             let keep = true;
             for (const poly of illegalPolys)
             {
-                if (poly.containsPoint(p) || poly.distanceToPoint(p) < this._treeSize / 2)
+                if (poly.containsPoint(p) || poly.distanceToPoint(p) < this.treeSize / 2)
                 {
                     keep = false;
                     break;
@@ -114,7 +139,7 @@ export class World
             {
                 for (const tree of trees)
                 {
-                    if (distance(tree.center, p) < this._treeSize)
+                    if (distance(tree.center, p) < this.treeSize)
                     {
                         keep = false;
                         break;
@@ -128,7 +153,7 @@ export class World
                 let closeToSomething = false;
                 for (const poly of illegalPolys)
                 {
-                    if (poly.distanceToPoint(p) < this._treeSize * 2)
+                    if (poly.distanceToPoint(p) < this.treeSize * 2)
                     {
                         closeToSomething = true;
                         break;
@@ -139,7 +164,7 @@ export class World
 
             if (keep)
             {
-                trees.push(new Tree(p, this._treeSize));
+                trees.push(new Tree(p, this.treeSize));
                 tryCount = 0;
             }
             tryCount++;
@@ -150,13 +175,13 @@ export class World
     private generateBuildings(): Building[]
     {
         const tmpEnvelopes: Envelope[] = [];
-        for (const seg of this._graph.segments)
+        for (const seg of this.graph.segments)
         {
             tmpEnvelopes.push(
                 new Envelope(
                     seg,
-                    this._roadWidth + this._buildingWidth + this._spacing * 2,
-                    this._roadRoundness
+                    this.roadWidth + this.buildingWidth + this.spacing * 2,
+                    this.roadRoundness
                 )
             );
         }
@@ -166,7 +191,7 @@ export class World
         for (let i = 0; i < guides.length; i++)
         {
             const seg: Segment = guides[i];
-            if (seg.length() < this._buildingMinLength)
+            if (seg.length() < this.buildingMinLength)
             {
                 guides.splice(i, 1);
                 i--;
@@ -176,11 +201,11 @@ export class World
         const supports: Segment[] = [];
         for (let seg of guides)
         {
-            const len = seg.length() + this._spacing;
+            const len = seg.length() + this.spacing;
             const buildingCount = Math.floor(
-                len / (this._buildingMinLength + this._spacing)
+                len / (this.buildingMinLength + this.spacing)
             );
-            const buildingLength = len / buildingCount - this._spacing;
+            const buildingLength = len / buildingCount - this.spacing;
 
             const dir: Point = seg.directionVector();
 
@@ -190,7 +215,7 @@ export class World
 
             for (let i = 2; i <= buildingCount; i++)
             {
-                q1 = add(q2, scale(dir, this._spacing));
+                q1 = add(q2, scale(dir, this.spacing));
                 q2 = add(q1, scale(dir, buildingLength));
                 supports.push(new Segment(q1, q2));
             }
@@ -199,7 +224,7 @@ export class World
         const bases: Polygon[] = [];
         for (const seg of supports)
         {
-            bases.push(new Envelope(seg, this._buildingWidth).poly);
+            bases.push(new Envelope(seg, this.buildingWidth).poly);
         }
 
         const eps = 0.001;
@@ -210,7 +235,7 @@ export class World
                 if
                 (
                     bases[i].intersectsPoly(bases[j]) ||
-                    bases[i].distanceToPoly(bases[j]) < this._spacing - eps
+                    bases[i].distanceToPoly(bases[j]) < this.spacing - eps
                 )
                 {
                     bases.splice(j, 1);
@@ -225,10 +250,10 @@ export class World
     private getIntersections(): Point[]
     {
         const subset: Point[] = [];
-        for (const point of this._graph.points)
+        for (const point of this.graph.points)
         {
             let degree = 0;
-            for (const seg of this._graph.segments)
+            for (const seg of this.graph.segments)
             {
                 if (seg.includes(point))
                 {
@@ -313,15 +338,15 @@ export class World
     {
         this.updateLights();
 
-        for (const env of this._envelopes)
+        for (const env of this.envelopes)
         {
             env.draw(ctx, { fill: "#BBB", stroke: "#BBB", lineWidth: 15 });
         }
-        for (const seg of this._graph.segments)
+        for (const seg of this.graph.segments)
         {
             seg.draw(ctx, { color: "white", width: 4, dash: [10, 10] });
         }
-        for (const seg of this._roadBorders)
+        for (const seg of this.roadBorders)
         {
             seg.draw(ctx, { color: "white", width: 4 });
         }
@@ -341,148 +366,5 @@ export class World
         {
             item.draw(ctx, viewPoint);
         }
-    }
-
-
-    get envelopes(): Envelope[]
-    {
-        return this._envelopes;
-    }
-
-    set envelopes(value: Envelope[])
-    {
-        this._envelopes = value;
-    }
-
-    get roadBorders(): Segment[]
-    {
-        return this._roadBorders;
-    }
-
-    set roadBorders(value: Segment[])
-    {
-        this._roadBorders = value;
-    }
-
-    get buildings(): Building[]
-    {
-        return this._buildings;
-    }
-
-    set buildings(value: Building[])
-    {
-        this._buildings = value;
-    }
-
-    get trees(): Tree[]
-    {
-        return this._trees;
-    }
-
-    set trees(value: Tree[])
-    {
-        this._trees = value;
-    }
-
-    get markings(): Marking[]
-    {
-        return this._markings;
-    }
-
-    set markings(value: Marking[])
-    {
-        this._markings = value;
-    }
-
-
-    get frameCount(): number
-    {
-        return this._frameCount;
-    }
-
-    set frameCount(value: number)
-    {
-        this._frameCount = value;
-    }
-
-    get laneGuides(): Segment[]
-    {
-        return this._laneGuides;
-    }
-
-    set laneGuides(value: Segment[])
-    {
-        this._laneGuides = value;
-    }
-
-
-    get graph(): Graph
-    {
-        return this._graph;
-    }
-
-    set graph(value: Graph)
-    {
-        this._graph = value;
-    }
-
-    get roadWidth(): number
-    {
-        return this._roadWidth;
-    }
-
-    set roadWidth(value: number)
-    {
-        this._roadWidth = value;
-    }
-
-    get roadRoundness(): number
-    {
-        return this._roadRoundness;
-    }
-
-    set roadRoundness(value: number)
-    {
-        this._roadRoundness = value;
-    }
-
-    get buildingWidth(): number
-    {
-        return this._buildingWidth;
-    }
-
-    set buildingWidth(value: number)
-    {
-        this._buildingWidth = value;
-    }
-
-    get buildingMinLength(): number
-    {
-        return this._buildingMinLength;
-    }
-
-    set buildingMinLength(value: number)
-    {
-        this._buildingMinLength = value;
-    }
-
-    get spacing(): number
-    {
-        return this._spacing;
-    }
-
-    set spacing(value: number)
-    {
-        this._spacing = value;
-    }
-
-    get treeSize(): number
-    {
-        return this._treeSize;
-    }
-
-    set treeSize(value: number)
-    {
-        this._treeSize = value;
     }
 }

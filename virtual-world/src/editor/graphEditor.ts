@@ -6,12 +6,12 @@ import {Viewport} from "./viewPort.ts";
 
 export class GraphEditor
 {
-    private readonly ctx: CanvasRenderingContext2D | null;
-    private canvas: HTMLCanvasElement;
-    private selected: Point | null = null;
-    private hovered: Point | null = null;
-    private dragging: boolean = false;
-    private mouse: Point | null = null;
+    public readonly ctx: CanvasRenderingContext2D | null;
+    public canvas: HTMLCanvasElement;
+    public selected: Point | null = null;
+    public hovered: Point | null = null;
+    public dragging: boolean = false;
+    public mouse: Point | null = null;
 
     private boundMouseDown = this.handleMouseDown.bind(this);
     private boundMouseMove = this.handleMouseMove.bind(this);
@@ -20,8 +20,8 @@ export class GraphEditor
 
     constructor
     (
-        private viewport: Viewport,
-        private graph: Graph
+        public viewport: Viewport,
+        public graph: Graph
     )
     {
         this.canvas = viewport.canvas;
