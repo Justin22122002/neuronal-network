@@ -53,11 +53,13 @@ export class Segment
         return proj;
     }
 
-    draw(ctx: CanvasRenderingContext2D, { width = 2, color = "black", dash = [] as number[] } = {}): void
+    draw(ctx: CanvasRenderingContext2D, { width = 2, color = "black", dash = [] as number[], cap = "butt" } = {}): void
     {
         ctx.beginPath();
         ctx.lineWidth = width;
         ctx.strokeStyle = color;
+        // @ts-ignore
+        ctx.lineCap = cap;
         ctx.setLineDash(dash);
         ctx.moveTo(this.p1.x, this.p1.y);
         ctx.lineTo(this.p2.x, this.p2.y);

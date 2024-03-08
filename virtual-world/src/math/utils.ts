@@ -1,16 +1,33 @@
 import {Point} from "../primitives/point.ts";
+import {Segment} from "../primitives/segment.ts";
 
-export function getNearestPoint(target: Point, points: Point[], threshold: number = Number.MAX_SAFE_INTEGER): Point | null
+export function getNearestPoint(loc: Point, points: Point[], threshold: number = Number.MAX_SAFE_INTEGER): Point | null
 {
     let minDist: number = Number.MAX_SAFE_INTEGER;
     let nearest = null;
     for (const point of points)
     {
-        const dist: number = distance(point, target);
+        const dist = distance(point, loc);
         if (dist < minDist && dist < threshold)
         {
             minDist = dist;
             nearest = point;
+        }
+    }
+    return nearest;
+}
+
+export function getNearestSegment(loc: Point, segments: Segment[], threshold = Number.MAX_SAFE_INTEGER): Segment | null
+{
+    let minDist = Number.MAX_SAFE_INTEGER;
+    let nearest = null;
+    for (const seg of segments)
+    {
+        const dist = seg.distanceToPoint(loc);
+        if (dist < minDist && dist < threshold)
+        {
+            minDist = dist;
+            nearest = seg;
         }
     }
     return nearest;
@@ -54,6 +71,11 @@ export function normalize(p: Point): Point
 export function magnitude(p: Point): number
 {
     return Math.hypot(p.x, p.y);
+}
+
+export function perpendicular(p: Point): Point
+{
+    return new Point(-p.y, p.x);
 }
 
 export function translate(loc: Point, angle: number, offset: number): Point

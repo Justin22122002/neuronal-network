@@ -3,47 +3,74 @@ import {Envelope} from "../primitives/envelope.ts";
 import {Polygon} from "../primitives/polygon.ts";
 import {Segment} from "../primitives/segment.ts";
 import {Point} from "../primitives/point.ts";
-import {add, distance, lerp, scale} from "../math/utils.ts";
+import {add, distance, getNearestPoint, lerp, scale} from "../math/utils.ts";
 import {Building} from "../items/building.ts";
 import {Tree} from "../items/tree.ts";
+import {Marking} from "../markings/marking.ts";
+import {Light} from "../markings/light.ts";
+
+interface ControlCenter
+{
+    x: number;
+    y: number;
+    lights: Light[];
+    ticks: number;
+}
 
 export class World
 {
-    private _envelopes: Envelope[];
-    private _roadBorders: Segment[];
+    private _envelopes: Envelope[] = [];
+    private _roadBorders: Segment[] = [];
     private _buildings: Building[] = [];
     private _trees: Tree[] = [];
+    private _markings: Marking[] = [];
+    private _frameCount: number = 0;
+    private _laneGuides: Segment[] = [];
     constructor
     (
-        private graph: Graph,
-        private roadWidth = 100,
-        private roadRoundness = 10,
-        private buildingWidth = 150,
-        private buildingMinLength = 150,
-        private spacing = 50,
-        private treeSize = 160
+        private _graph: Graph,
+        private _roadWidth = 100,
+        private _roadRoundness = 10,
+        private _buildingWidth = 150,
+        private _buildingMinLength = 150,
+        private _spacing = 50,
+        private _treeSize = 160
     )
     {
-        this._envelopes = [];
-        this._roadBorders = [];
-
         this.generate();
     }
 
     generate(): void
     {
         this._envelopes.length = 0;
-        for (const seg of this.graph.segments)
+        for (const seg of this._graph.segments)
         {
             this._envelopes.push
             (
-                new Envelope(seg, this.roadWidth, this.roadRoundness)
+                new Envelope(seg, this._roadWidth, this._roadRoundness)
             );
         }
 
         this._roadBorders = Polygon.union(this._envelopes.map((e: Envelope) => e.poly));
         this._buildings = this.generateBuildings();
         this._trees = this.generateTrees();
+
+        this.laneGuides.length = 0;
+        this.laneGuides.push(...this.generateLaneGuides());
+    }
+
+    private generateLaneGuides(): Segment[]
+    {
+        const tmpEnvelopes: Envelope[] = [];
+        for (const seg of this._graph.segments)
+        {
+            tmpEnvelopes.push(
+                new Envelope(seg, this._roadWidth / 2, this._roadRoundness)
+            );
+        }
+
+        const segments: Segment[] = Polygon.union(tmpEnvelopes.map((e: Envelope) => e.poly));
+        return segments;
     }
 
     private generateTrees() : Tree[]
@@ -75,7 +102,7 @@ export class World
             let keep = true;
             for (const poly of illegalPolys)
             {
-                if (poly.containsPoint(p) || poly.distanceToPoint(p) < this.treeSize / 2)
+                if (poly.containsPoint(p) || poly.distanceToPoint(p) < this._treeSize / 2)
                 {
                     keep = false;
                     break;
@@ -87,7 +114,7 @@ export class World
             {
                 for (const tree of trees)
                 {
-                    if (distance(tree.center, p) < this.treeSize)
+                    if (distance(tree.center, p) < this._treeSize)
                     {
                         keep = false;
                         break;
@@ -101,7 +128,7 @@ export class World
                 let closeToSomething = false;
                 for (const poly of illegalPolys)
                 {
-                    if (poly.distanceToPoint(p) < this.treeSize * 2)
+                    if (poly.distanceToPoint(p) < this._treeSize * 2)
                     {
                         closeToSomething = true;
                         break;
@@ -112,7 +139,7 @@ export class World
 
             if (keep)
             {
-                trees.push(new Tree(p, this.treeSize));
+                trees.push(new Tree(p, this._treeSize));
                 tryCount = 0;
             }
             tryCount++;
@@ -123,13 +150,13 @@ export class World
     private generateBuildings(): Building[]
     {
         const tmpEnvelopes: Envelope[] = [];
-        for (const seg of this.graph.segments)
+        for (const seg of this._graph.segments)
         {
             tmpEnvelopes.push(
                 new Envelope(
                     seg,
-                    this.roadWidth + this.buildingWidth + this.spacing * 2,
-                    this.roadRoundness
+                    this._roadWidth + this._buildingWidth + this._spacing * 2,
+                    this._roadRoundness
                 )
             );
         }
@@ -139,7 +166,7 @@ export class World
         for (let i = 0; i < guides.length; i++)
         {
             const seg: Segment = guides[i];
-            if (seg.length() < this.buildingMinLength)
+            if (seg.length() < this._buildingMinLength)
             {
                 guides.splice(i, 1);
                 i--;
@@ -149,11 +176,11 @@ export class World
         const supports: Segment[] = [];
         for (let seg of guides)
         {
-            const len = seg.length() + this.spacing;
+            const len = seg.length() + this._spacing;
             const buildingCount = Math.floor(
-                len / (this.buildingMinLength + this.spacing)
+                len / (this._buildingMinLength + this._spacing)
             );
-            const buildingLength = len / buildingCount - this.spacing;
+            const buildingLength = len / buildingCount - this._spacing;
 
             const dir: Point = seg.directionVector();
 
@@ -163,7 +190,7 @@ export class World
 
             for (let i = 2; i <= buildingCount; i++)
             {
-                q1 = add(q2, scale(dir, this.spacing));
+                q1 = add(q2, scale(dir, this._spacing));
                 q2 = add(q1, scale(dir, buildingLength));
                 supports.push(new Segment(q1, q2));
             }
@@ -172,7 +199,7 @@ export class World
         const bases: Polygon[] = [];
         for (const seg of supports)
         {
-            bases.push(new Envelope(seg, this.buildingWidth).poly);
+            bases.push(new Envelope(seg, this._buildingWidth).poly);
         }
 
         const eps = 0.001;
@@ -183,7 +210,7 @@ export class World
                 if
                 (
                     bases[i].intersectsPoly(bases[j]) ||
-                    bases[i].distanceToPoly(bases[j]) < this.spacing - eps
+                    bases[i].distanceToPoly(bases[j]) < this._spacing - eps
                 )
                 {
                     bases.splice(j, 1);
@@ -195,19 +222,112 @@ export class World
         return bases.map((b: Polygon) => new Building(b));
     }
 
+    private getIntersections(): Point[]
+    {
+        const subset: Point[] = [];
+        for (const point of this._graph.points)
+        {
+            let degree = 0;
+            for (const seg of this._graph.segments)
+            {
+                if (seg.includes(point))
+                {
+                    degree++;
+                }
+            }
+
+            if (degree > 2)
+            {
+                subset.push(point);
+            }
+        }
+        return subset;
+    }
+
+    private updateLights(): void
+    {
+        const lights: Marking[] = this.markings.filter((m: Marking) => m instanceof Light);
+        const controlCenters: ControlCenter[] = [];
+
+        for (const light of lights)
+        {
+            const point: Point | null = getNearestPoint(light.center, this.getIntersections());
+            if (!point) continue;
+
+            let controlCenter = controlCenters.find((c) => c.x === point.x && c.y === point.y);
+
+            if (!controlCenter)
+            {
+                if (light instanceof Light)
+                {
+                    controlCenter = { x: point.x, y: point.y, lights: [light], ticks: 0 };
+                    controlCenters.push(controlCenter);
+                }
+            }
+            else
+            {
+                if (light instanceof Light)
+                {
+                    controlCenter.lights.push(light);
+                }
+            }
+        }
+
+        const greenDuration = 2,
+            yellowDuration = 1;
+
+        for (const center of controlCenters)
+        {
+            center.ticks = center.lights.length * (greenDuration + yellowDuration);
+        }
+
+        const tick: number = Math.floor(this.frameCount / 60);
+
+        for (const center of controlCenters)
+        {
+            const cTick: number = tick % center.ticks;
+            const greenYellowIndex: number = Math.floor(
+                cTick / (greenDuration + yellowDuration)
+            );
+
+            const greenYellowState: "green" | "yellow" =
+                cTick % (greenDuration + yellowDuration) < greenDuration
+                    ? "green"
+                    : "yellow";
+
+            for (let i = 0; i < center.lights.length; i++)
+            {
+                if (i === greenYellowIndex)
+                {
+                    center.lights[i].state = greenYellowState;
+                } else {
+                    center.lights[i].state = "red";
+                }
+            }
+        }
+
+        this.frameCount++;
+    }
+
     draw(ctx: CanvasRenderingContext2D, viewPoint: Point): void
     {
+        this.updateLights();
+
         for (const env of this._envelopes)
         {
             env.draw(ctx, { fill: "#BBB", stroke: "#BBB", lineWidth: 15 });
         }
-        for (const seg of this.graph.segments)
+        for (const seg of this._graph.segments)
         {
             seg.draw(ctx, { color: "white", width: 4, dash: [10, 10] });
         }
         for (const seg of this._roadBorders)
         {
             seg.draw(ctx, { color: "white", width: 4 });
+        }
+        for (const marking of this.markings)
+        {
+            marking.draw(ctx);
         }
 
         const items: (Building | Tree)[] = [...this.buildings, ...this.trees];
@@ -262,5 +382,107 @@ export class World
     set trees(value: Tree[])
     {
         this._trees = value;
+    }
+
+    get markings(): Marking[]
+    {
+        return this._markings;
+    }
+
+    set markings(value: Marking[])
+    {
+        this._markings = value;
+    }
+
+
+    get frameCount(): number
+    {
+        return this._frameCount;
+    }
+
+    set frameCount(value: number)
+    {
+        this._frameCount = value;
+    }
+
+    get laneGuides(): Segment[]
+    {
+        return this._laneGuides;
+    }
+
+    set laneGuides(value: Segment[])
+    {
+        this._laneGuides = value;
+    }
+
+
+    get graph(): Graph
+    {
+        return this._graph;
+    }
+
+    set graph(value: Graph)
+    {
+        this._graph = value;
+    }
+
+    get roadWidth(): number
+    {
+        return this._roadWidth;
+    }
+
+    set roadWidth(value: number)
+    {
+        this._roadWidth = value;
+    }
+
+    get roadRoundness(): number
+    {
+        return this._roadRoundness;
+    }
+
+    set roadRoundness(value: number)
+    {
+        this._roadRoundness = value;
+    }
+
+    get buildingWidth(): number
+    {
+        return this._buildingWidth;
+    }
+
+    set buildingWidth(value: number)
+    {
+        this._buildingWidth = value;
+    }
+
+    get buildingMinLength(): number
+    {
+        return this._buildingMinLength;
+    }
+
+    set buildingMinLength(value: number)
+    {
+        this._buildingMinLength = value;
+    }
+
+    get spacing(): number
+    {
+        return this._spacing;
+    }
+
+    set spacing(value: number)
+    {
+        this._spacing = value;
+    }
+
+    get treeSize(): number
+    {
+        return this._treeSize;
+    }
+
+    set treeSize(value: number)
+    {
+        this._treeSize = value;
     }
 }

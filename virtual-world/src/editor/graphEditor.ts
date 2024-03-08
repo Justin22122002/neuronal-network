@@ -7,11 +7,16 @@ import {Viewport} from "./viewPort.ts";
 export class GraphEditor
 {
     private readonly ctx: CanvasRenderingContext2D | null;
-    private readonly canvas: HTMLCanvasElement;
+    private canvas: HTMLCanvasElement;
     private selected: Point | null = null;
     private hovered: Point | null = null;
     private dragging: boolean = false;
     private mouse: Point | null = null;
+
+    private boundMouseDown = this.handleMouseDown.bind(this);
+    private boundMouseMove = this.handleMouseMove.bind(this);
+    private boundMouseUp = () => this.dragging = false;
+    private boundContextMenu = (evt: MouseEvent) => evt.preventDefault();
 
     constructor
     (
@@ -24,12 +29,32 @@ export class GraphEditor
         this.addEventListeners();
     }
 
+    enable(): void
+    {
+        this.addEventListeners();
+    }
+
+    disable(): void
+    {
+        this.removeEventListeners();
+        this.selected = null;
+        this.hovered = null;
+    }
+
     private addEventListeners(): void
     {
-        this.canvas.addEventListener("mousedown", this.handleMouseDown.bind(this));
-        this.canvas.addEventListener("mousemove", this.handleMouseMove.bind(this));
-        this.canvas.addEventListener("contextmenu", (evt: MouseEvent) => evt.preventDefault());
-        this.canvas.addEventListener("mouseup", (): boolean => this.dragging = false);
+        this.canvas.addEventListener("mousedown", this.boundMouseDown);
+        this.canvas.addEventListener("mousemove", this.boundMouseMove);
+        this.canvas.addEventListener("mouseup", this.boundMouseUp);
+        this.canvas.addEventListener("contextmenu", this.boundContextMenu);
+    }
+
+    private removeEventListeners(): void
+    {
+        this.canvas.removeEventListener("mousedown", this.boundMouseDown);
+        this.canvas.removeEventListener("mousemove", this.boundMouseMove);
+        this.canvas.removeEventListener("mouseup", this.boundMouseUp);
+        this.canvas.removeEventListener("contextmenu", this.boundContextMenu);
     }
 
     private handleMouseMove(evt: MouseEvent): void
