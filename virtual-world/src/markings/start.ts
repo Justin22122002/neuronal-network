@@ -19,14 +19,14 @@ export class Start extends Marking
 
         this.img = new Image();
         this.img.src = "./src/car.png";
-        this._type = MarkingType.START;
+        this.type = MarkingType.START;
     }
 
     draw(ctx: CanvasRenderingContext2D): void
     {
         ctx.save();
-        ctx.translate(this._center.x, this._center.y);
-        ctx.rotate(angle(this._directionVector) - Math.PI / 2);
+        ctx.translate(this.center.x, this.center.y);
+        ctx.rotate(angle(this.directionVector) - Math.PI / 2);
 
         ctx.drawImage(this.img, -this.img.width / 2, -this.img.height / 2);
 

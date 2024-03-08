@@ -325,7 +325,9 @@ export class World
                 if (i === greenYellowIndex)
                 {
                     center.lights[i].state = greenYellowState;
-                } else {
+                }
+                else
+                {
                     center.lights[i].state = "red";
                 }
             }
