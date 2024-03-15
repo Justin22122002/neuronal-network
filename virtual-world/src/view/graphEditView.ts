@@ -7,6 +7,7 @@ import {ParkingEditor} from "../editor/parkingEditor.ts";
 import {LightEditor} from "../editor/lightEditor.ts";
 import {TargetEditor} from "../editor/targetEditor.ts";
 import {YieldEditor} from "../editor/yieldEditor.ts";
+import {scale} from "../math/utils.ts";
 
 export class GraphEditView extends BaseView
 {
@@ -23,28 +24,30 @@ export class GraphEditView extends BaseView
     protected override getHTMLContent(): string
     {
         return `
-        <div id="controls">
-            <button id="dispose">🗑️</button>
-            <button id="save">💾</button>
-            
-            <label for="fileInput" class="file-input-label">
-                📁
-                <input
-                   type="file"
-                   id="fileInput"
-                   accept=".world"
-                />
-             </label>
-            &nbsp
-            <button id="graphBtn">🌐</button>
-            <button id="stopBtn">🛑</button>
-            <button id="yieldBtn">⚠️</button>
-            <button id="crossingBtn">🚶</button>
-            <button id="parkingBtn">🅿️</button>
-            <button id="lightBtn">🚦</button>
-            <button id="startBtn">🚙</button>
-            <button id="targetBtn">🎯</button>
-        </div>
+            <h1>World Editor</h1>
+            <canvas id="canvas"></canvas>
+            <div id="controls">
+                <button id="dispose">🗑️</button>
+                <button id="save">💾</button>
+                
+                <label for="fileInput" class="file-input-label">
+                    📁
+                    <input
+                       type="file"
+                       id="fileInput"
+                       accept=".world"
+                    />
+                 </label>
+                &nbsp
+                <button id="graphBtn">🌐</button>
+                <button id="stopBtn">🛑</button>
+                <button id="yieldBtn">⚠️</button>
+                <button id="crossingBtn">🚶</button>
+                <button id="parkingBtn">🅿️</button>
+                <button id="lightBtn">🚦</button>
+                <button id="startBtn">🚙</button>
+                <button id="targetBtn">🎯</button>
+            </div>
         `;
     }
 
@@ -88,5 +91,26 @@ export class GraphEditView extends BaseView
         yieldBtn.addEventListener("click", () => this.setMode('yield'));
 
         this.setMode("graph");
+    }
+
+    protected override animate(): void
+    {
+        if(!this.ctx) return;
+
+        this.viewport.reset();
+        if (this.world.graph.hash() != this.oldGraphHash)
+        {
+            this.world.generate();
+            this.oldGraphHash = this.world.graph.hash();
+        }
+
+        const viewPoint = scale(this.viewport.getOffset(), -1);
+        this.world.draw(this.ctx, viewPoint);
+        this.ctx.globalAlpha = 0.3;
+        for (const tool of Object.values(this.tools))
+        {
+            tool.editor.display();
+        }
+        requestAnimationFrame(this.animate.bind(this));
     }
 }

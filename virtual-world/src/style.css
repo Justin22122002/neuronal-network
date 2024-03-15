@@ -26,3 +26,25 @@ button, .file-input-label {
 input[type="file"] {
     display: none;
 }
+
+#networkCanvas {
+    background: black;
+}
+
+.container {
+    margin: 0;
+    background: darkgray;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#verticalButtons {
+    display: flex;
+    flex-direction: column;
+    margin: 5px;
+    button:first-child {
+        margin-bottom: 5px;
+    }
+}

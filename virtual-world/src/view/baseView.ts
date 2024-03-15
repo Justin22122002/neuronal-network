@@ -9,7 +9,6 @@ import {TargetEditor} from "../editor/targetEditor.ts";
 import {YieldEditor} from "../editor/yieldEditor.ts";
 import {Graph} from "../math/graph.ts";
 import {Viewport} from "../editor/viewPort.ts";
-import {scale} from "../math/utils.ts";
 
 export interface Tools
 {
@@ -26,7 +25,7 @@ export abstract class BaseView
     protected canvas!: HTMLCanvasElement;
     protected world!: World;
     protected viewport!: Viewport;
-    protected tools!: Tools;
+    protected tools: Tools = {};
     protected oldGraphHash: string = "";
 
     protected constructor
@@ -41,6 +40,7 @@ export abstract class BaseView
         {
             this.getCanvas();
             this.setup();
+            this.oldGraphHash = this.world.graph.hash();
             this.animate();
         });
     }
@@ -49,32 +49,13 @@ export abstract class BaseView
 
     protected abstract setup(): void;
 
-    protected animate(): void
-    {
-        if(!this.ctx) return;
-
-        this.viewport.reset();
-        if (this.world.graph.hash() != this.oldGraphHash)
-        {
-            this.world.generate();
-            this.oldGraphHash = this.world.graph.hash();
-        }
-        const viewPoint = scale(this.viewport.getOffset(), -1);
-        this.world.draw(this.ctx, viewPoint);
-        this.ctx.globalAlpha = 0.3;
-        for (const tool of Object.values(this.tools))
-        {
-            tool.editor.display();
-        }
-        requestAnimationFrame(this.animate.bind(this));
-    }
+    protected abstract animate(): void;
 
     protected async loadWorld(): Promise<void>
     {
         const worldString = localStorage.getItem("world");
         const worldInfo = worldString ? JSON.parse(worldString) : null;
 
-        console.log(worldInfo)
         this.world = worldInfo
             ? await World.load(worldInfo)
             : new World(new Graph());
@@ -100,8 +81,6 @@ export abstract class BaseView
     {
         document.querySelector<HTMLDivElement>(this.htmlRef)!.innerHTML =
             `
-                <h1>World Editor</h1>
-                <canvas id="canvas"></canvas>
                 ${this.getHTMLContent()}
             `
     }
@@ -119,7 +98,8 @@ export abstract class BaseView
         this.world.offset = this.viewport.offset;
 
         const element = document.createElement("a");
-        element.setAttribute(
+        element.setAttribute
+        (
             "href",
             "data:application/json;charset=utf-8," +
             encodeURIComponent(JSON.stringify(this.world))

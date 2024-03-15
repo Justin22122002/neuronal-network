@@ -92,6 +92,33 @@ export function angle(p: Point): number
     return Math.atan2(p.y, p.x);
 }
 
+/**
+ * Checks for an intersection between the given coordinates
+ * @param poly1
+ * @param poly2
+ * @returns
+ */
+export function polysIntersect(poly1: Point[], poly2: Point[]): boolean
+{
+    for (let i: number = 0; i < poly1.length; i++)
+    {
+        for (let j: number = 0; j < poly2.length; j++)
+        {
+            const touch: Point | null = getIntersection
+            (
+                poly1[i],
+                poly1[(i + 1) % poly1.length],
+                poly2[j],
+                poly2[(j + 1) % poly2.length]
+            );
+
+            if (touch) return true;
+        }
+    }
+
+    return false;
+}
+
 export function getIntersection(A: Point, B: Point, C: Point, D: Point): Point | null
 {
     const tTop: number = (D.x - C.x) * (A.y - C.y) - (D.y - C.y) * (A.x - C.x);
@@ -140,4 +167,13 @@ export function getFake3dPoint(point: Point, viewPoint: Point, height: number): 
     const dist: number = distance(point, viewPoint);
     const scaler: number = Math.atan(dist / 300) / (Math.PI / 2);
     return add(point, scale(dir, height * scaler));
+}
+
+export function getRGBA(value: number): string
+{
+    const alpha: number = Math.abs(value);
+    const R: 0 |255 = value < 0 ? 0 : 255;
+    const G: 0 |255 = R;
+    const B: 0 |255 = value > 0 ? 0 : 255;
+    return "rgba("+R+","+G+","+B+","+alpha+")";
 }

@@ -1,4 +1,6 @@
 import './style.css';
-import {GraphEditView} from "./view/graphEditView.ts";
+import {CarView} from "./view/carView.ts";
 
-new GraphEditView(`#app`, 600, 600);
+// new GraphEditView(`#app`, 600, 600);
+
+new CarView(`#app`, window.innerWidth - 330, window.innerHeight);
