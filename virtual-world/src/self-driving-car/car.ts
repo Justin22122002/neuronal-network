@@ -60,7 +60,7 @@ export class Car extends TrafficObject
         if (controlType !== ControlType.DUMMY)
         {
             this.sensor = new Sensor(this);
-            this.brain = new NeuralNetwork([this.sensor.rayCount, 6, 4]);
+            this.brain = new NeuralNetwork([this.sensor.rayCount, 6, 6, 4]);
         }
 
         this.img = new Image();

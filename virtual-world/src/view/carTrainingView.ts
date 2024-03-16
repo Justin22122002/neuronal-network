@@ -7,7 +7,7 @@ import {Visualizer} from "../self-driving-car/neural-network/visualizer.ts";
 import {Point} from "../primitives/point.ts";
 import {Start} from "../markings/start.ts";
 
-export class CarView extends BaseView
+export class CarTrainingView extends BaseView
 {
     private networkCanvas!: HTMLCanvasElement;
     private networkCtx!: CanvasRenderingContext2D;
@@ -15,6 +15,7 @@ export class CarView extends BaseView
     private bestCar!: Car;
     private roadBorders!: Point[][];
     private time: number = 0;
+
     constructor
     (
         htmlRef: string,
@@ -74,12 +75,15 @@ export class CarView extends BaseView
 
         // Set initial best car
         this.bestCar = this.cars[0];
+
+        this.world.cars = this.cars;
+        this.world.bestCar = this.bestCar;
     }
 
     protected override animate(): void
     {
-        this.animateWorld();
         this.animateCarAndNetwork();
+        this.animateWorld();
         requestAnimationFrame(this.animate.bind(this));
     }
 
@@ -101,10 +105,7 @@ export class CarView extends BaseView
         for (const car of this.cars)
         {
             car.update(this.roadBorders, []);
-            car.draw(this.ctx);
         }
-
-        this.bestCar.draw(this.ctx, true);
 
         const best = this.cars.find(
             c=> c.fittness === Math.max(
@@ -122,7 +123,7 @@ export class CarView extends BaseView
     {
         this.viewport.reset();
         const viewPoint = scale(this.viewport.getOffset(), -1);
-        this.world.draw(this.ctx, viewPoint);
+        this.world.draw(this.ctx, viewPoint, false);
         this.ctx.globalAlpha = 0.3;
 
         for (const tool of Object.values(this.tools))

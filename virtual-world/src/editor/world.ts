@@ -8,6 +8,8 @@ import {Building} from "../items/building.ts";
 import {Tree} from "../items/tree.ts";
 import {Marking} from "../markings/marking.ts";
 import {Light} from "../markings/light.ts";
+import {Car} from "../self-driving-car/car.ts";
+import {Start} from "../markings/start.ts";
 
 interface ControlCenter
 {
@@ -28,6 +30,9 @@ export class World
     public laneGuides: Segment[] = [];
     public zoom: number = 1;
     public offset: Point = new Point(0, 0);
+    public cars: Car[] = [];
+    public bestCar: Car | undefined;
+
     constructor
     (
         public graph: Graph,
@@ -94,8 +99,7 @@ export class World
             );
         }
 
-        const segments: Segment[] = Polygon.union(tmpEnvelopes.map((e: Envelope) => e.poly));
-        return segments;
+        return Polygon.union(tmpEnvelopes.map((e: Envelope) => e.poly));
     }
 
     private generateTrees() : Tree[]
@@ -336,7 +340,7 @@ export class World
         this.frameCount++;
     }
 
-    draw(ctx: CanvasRenderingContext2D, viewPoint: Point): void
+    draw(ctx: CanvasRenderingContext2D, viewPoint: Point, showStartMarkings = true): void
     {
         this.updateLights();
 
@@ -344,17 +348,34 @@ export class World
         {
             env.draw(ctx, { fill: "#BBB", stroke: "#BBB", lineWidth: 15 });
         }
+
+        for (const marking of this.markings)
+        {
+            if (!(marking instanceof Start) || showStartMarkings)
+            {
+                marking.draw(ctx);
+            }
+        }
         for (const seg of this.graph.segments)
         {
             seg.draw(ctx, { color: "white", width: 4, dash: [10, 10] });
         }
+
         for (const seg of this.roadBorders)
         {
             seg.draw(ctx, { color: "white", width: 4 });
         }
-        for (const marking of this.markings)
+
+        ctx.globalAlpha = 0.2;
+        for (const car of this.cars)
         {
-            marking.draw(ctx);
+            car.draw(ctx);
+        }
+
+        ctx.globalAlpha = 1;
+        if(this.bestCar)
+        {
+            this.bestCar.draw(ctx, true);
         }
 
         const items: (Building | Tree)[] = [...this.buildings, ...this.trees];
