@@ -11,8 +11,6 @@ export class CarTrainingView extends BaseView
 {
     private networkCanvas!: HTMLCanvasElement;
     private networkCtx!: CanvasRenderingContext2D;
-    private cars: Car[] = [];
-    private bestCar!: Car;
     private roadBorders!: Point[][];
     private time: number = 0;
 
@@ -56,16 +54,16 @@ export class CarTrainingView extends BaseView
 
         this.networkCtx = networkContext;
 
-        this.cars = this.generateCars(100);
+        this.world.cars = this.generateCars(100);
 
         if (localStorage.getItem('bestBrain') !== null)
         {
-            for (let i = 0; i < this.cars.length; i++)
+            for (let i = 0; i < this.world.cars.length; i++)
             {
-                this.cars[i].brain = JSON.parse(localStorage.getItem('bestBrain')!);
+                this.world.cars[i].brain = JSON.parse(localStorage.getItem('bestBrain')!);
                 if (i !== 0)
                 {
-                    NeuralNetwork.mutate(this.cars[i].brain!, 0.1);
+                    NeuralNetwork.mutate(this.world.cars[i].brain!, 0.1);
                 }
             }
         }
@@ -74,10 +72,7 @@ export class CarTrainingView extends BaseView
         this.roadBorders = this.world.roadBorders.map((s) => [s.p1, s.p2]);
 
         // Set initial best car
-        this.bestCar = this.cars[0];
-
-        this.world.cars = this.cars;
-        this.world.bestCar = this.bestCar;
+        this.world.bestCar = this.world.cars[0];
     }
 
     protected override animate(): void
@@ -93,30 +88,33 @@ export class CarTrainingView extends BaseView
         this.networkCtx.lineDashOffset = -this.time / 50;
         this.time += 25;
 
-        if (this.bestCar.brain)
+        if (this.world.bestCar && this.world.bestCar.brain)
         {
-            Visualizer.drawNetwork(this.networkCtx, this.bestCar.brain);
+            Visualizer.drawNetwork(this.networkCtx, this.world.bestCar.brain);
         }
         else
         {
             console.error("brain is undefined");
         }
 
-        for (const car of this.cars)
+        for (const car of this.world.cars)
         {
             car.update(this.roadBorders, []);
         }
 
-        const best = this.cars.find(
+        const best = this.world.cars.find(
             c=> c.fittness === Math.max(
-                ...this.cars.map(c=>c.fittness)
+                ...this.world.cars.map(c=>c.fittness)
             ));
 
-        if(best) this.bestCar = best;
+        if(best) this.world.bestCar = best;
 
         // Reset viewport
-        this.viewport.offset.x = -this.bestCar.x;
-        this.viewport.offset.y = -this.bestCar.y;
+        if (this.world.bestCar)
+        {
+            this.viewport.offset.x = -this.world.bestCar.x;
+            this.viewport.offset.y = -this.world.bestCar.y;
+        }
     }
 
     private animateWorld(): void
@@ -149,7 +147,8 @@ export class CarTrainingView extends BaseView
 
     private saveCar(): void
     {
-        localStorage.setItem("bestBrain", JSON.stringify(this.bestCar.brain));
+        if(!this.world.bestCar) return;
+        localStorage.setItem("bestBrain", JSON.stringify(this.world.bestCar.brain));
     }
 
     private discard(): void
