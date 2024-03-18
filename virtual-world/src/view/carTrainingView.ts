@@ -6,6 +6,7 @@ import {NeuralNetwork} from "../self-driving-car/neural-network/neural-network.t
 import {Visualizer} from "../self-driving-car/neural-network/visualizer.ts";
 import {Point} from "../primitives/point.ts";
 import {Start} from "../markings/start.ts";
+import {MiniMap} from "../miniMap/miniMap.ts";
 
 export class CarTrainingView extends BaseView
 {
@@ -13,6 +14,7 @@ export class CarTrainingView extends BaseView
     private networkCtx!: CanvasRenderingContext2D;
     private roadBorders!: Point[][];
     private time: number = 0;
+    private miniMap!: MiniMap;
 
     constructor
     (
@@ -33,7 +35,10 @@ export class CarTrainingView extends BaseView
                     <button id="saveButton">💾</button>
                     <button id="deleteButton">🗑️</button>
                 </div>
-                <canvas id="networkCanvas"></canvas>   
+                <div>
+                    <canvas id="networkCanvas"></canvas>
+                    <canvas id="miniMapCanvas"></canvas>
+                </div>  
             </div>
         `;
     }
@@ -47,7 +52,7 @@ export class CarTrainingView extends BaseView
 
         this.networkCanvas = document.getElementById('networkCanvas') as HTMLCanvasElement;
         this.networkCanvas.width = 300;
-        this.networkCanvas.height = window.innerHeight;
+        this.networkCanvas.height = window.innerHeight - 308;
 
         const networkContext: CanvasRenderingContext2D | null = this.networkCanvas.getContext('2d');
         if(!networkContext) throw new Error("No Network CTX");
@@ -73,6 +78,10 @@ export class CarTrainingView extends BaseView
 
         // Set initial best car
         this.world.bestCar = this.world.cars[0];
+
+        // setup Minimap
+        const miniMapCanvas: HTMLCanvasElement = document.getElementById('miniMapCanvas') as HTMLCanvasElement;
+        this.miniMap = new MiniMap(miniMapCanvas, this.world.graph, 300);
     }
 
     protected override animate(): void
@@ -122,6 +131,7 @@ export class CarTrainingView extends BaseView
         this.viewport.reset();
         const viewPoint = scale(this.viewport.getOffset(), -1);
         this.world.draw(this.ctx, viewPoint, false);
+        this.miniMap.update(viewPoint);
         this.ctx.globalAlpha = 0.3;
 
         for (const tool of Object.values(this.tools))

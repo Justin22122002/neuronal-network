@@ -3,13 +3,13 @@ body {
     text-align: center;
 }
 
+* {
+    margin: 0;
+}
+
 h1 {
     color: white;
     font-family: Arial, serif;
-}
-
-#canvas {
-    background-color: #2a5;
 }
 
 button, .file-input-label {
@@ -23,16 +23,27 @@ button, .file-input-label {
     cursor: pointer;
 }
 
+button:hover{
+    background: gray;
+}
+
 input[type="file"] {
     display: none;
 }
 
-#networkCanvas {
-    background: black;
+#canvas {
+    background-color: #2a5;
+}
+
+#miniMapCanvas{
+    background:black;
+}
+
+#networkCanvas{
+    background:black;
 }
 
 .container {
-    margin: 0;
     background: darkgray;
     overflow: hidden;
     display: flex;

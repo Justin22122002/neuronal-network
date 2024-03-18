@@ -340,7 +340,7 @@ export class World
         this.frameCount++;
     }
 
-    draw(ctx: CanvasRenderingContext2D, viewPoint: Point, showStartMarkings = true): void
+    draw(ctx: CanvasRenderingContext2D, viewPoint: Point, showStartMarkings = true, renderRadius = 1000): void
     {
         this.updateLights();
 
@@ -378,7 +378,10 @@ export class World
             this.bestCar.draw(ctx, true);
         }
 
-        const items: (Building | Tree)[] = [...this.buildings, ...this.trees];
+        const items: (Building | Tree)[] = [...this.buildings, ...this.trees].filter(
+            (i) => i.base.distanceToPoint(viewPoint) < renderRadius
+        );
+
         items.sort(
             (a: Building | Tree, b: Building | Tree) =>
                 b.base.distanceToPoint(viewPoint) -

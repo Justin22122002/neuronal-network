@@ -23,7 +23,7 @@ carTrainingButton.addEventListener('click', () => openCarTrainingView());
 
 function openGraphEditView(): void
 {
-    new GraphEditView(appElementName, 600, 600);
+    new GraphEditView(appElementName, window.innerWidth - 100, window.innerHeight - 200);
 }
 
 function openCarTrainingView() : void
