@@ -59,7 +59,7 @@ export class CarTrainingView extends BaseView
 
         this.networkCtx = networkContext;
 
-        this.world.cars = this.generateCars(100);
+        this.world.cars = this.generateCars(1);
 
         if (localStorage.getItem('bestBrain') !== null)
         {
